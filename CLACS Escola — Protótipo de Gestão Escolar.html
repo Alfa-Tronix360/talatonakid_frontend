@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CLACS Escola — Protótipo</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f4;--sf:#fff;--tx:#14262b;--mu:#5b6d72;--ln:#dbe3e2;--ac:#0f5c63;--ac2:#e3f0ef;--wa:#b86a00;--wa2:#fdf0dc;--er:#b3261e;--er2:#fbe4e2;--ok:#2a7a3b;--ok2:#e2f3e5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a1d;--sf:#16272b;--tx:#e6eeee;--mu:#93a8ac;--ln:#2a3f44;--ac:#5cc4cc;--ac2:#173a3e;--wa:#f0b350;--wa2:#3a2c12;--er:#ff8a80;--er2:#3d1b19;--ok:#7fd48f;--ok2:#17331d}}
+:root[data-theme="dark"]{--bg:#0e1a1d;--sf:#16272b;--tx:#e6eeee;--mu:#93a8ac;--ln:#2a3f44;--ac:#5cc4cc;--ac2:#173a3e;--wa:#f0b350;--wa2:#3a2c12;--er:#ff8a80;--er2:#3d1b19;--ok:#7fd48f;--ok2:#17331d}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+nav{background:var(--ac);color:#fff;padding:18px 10px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:2px}
+nav h1{font-size:17px;margin:0 8px 14px;line-height:1.2}nav h1 small{display:block;font-weight:400;opacity:.75;font-size:12px}
+nav button{background:none;border:0;color:#fff;text-align:left;padding:9px 10px;border-radius:6px;opacity:.85}
+nav button[aria-current=true]{background:rgba(255,255,255,.18);opacity:1;font-weight:700}
+nav .sp{flex:1}
+main{padding:22px;max-width:1100px;width:100%}
+h2{margin:0 0 4px;font-size:22px}.sub{color:var(--mu);margin:0 0 18px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:14px}
+.kpi{text-align:left;width:100%}.kpi b{display:block;font-size:26px;margin-top:2px}.kpi span{color:var(--mu);font-size:13px}
+.kpi.bad b{color:var(--er)}.kpi.good b{color:var(--ok)}
+.kpi:hover{border-color:var(--ac)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+.row>*{min-width:0}
+input,select{background:var(--sf);border:1px solid var(--ln);border-radius:6px;padding:7px 9px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:8px 13px;font-weight:500}
+[data-theme=dark] .btn,:root:not([data-theme=light]) .btn{color:#0e1a1d}
+.btn.ghost{background:var(--sf);color:var(--tx);border:1px solid var(--ln)}
+.tw{overflow-x:auto;background:var(--sf);border:1px solid var(--ln);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--ln);white-space:nowrap}
+th{font-size:13px;color:var(--mu);font-weight:500}tr:last-child td{border:0}
+tbody tr.clk{cursor:pointer}tbody tr.clk:hover{background:var(--ac2)}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:500}
+.t-ok{background:var(--ok2);color:var(--ok)}.t-er{background:var(--er2);color:var(--er)}.t-wa{background:var(--wa2);color:var(--wa)}.t-n{background:var(--ac2);color:var(--ac)}
+.bars{display:grid;gap:8px}.bar{display:grid;grid-template-columns:56px 1fr 90px;gap:10px;align-items:center;background:none;border:0;text-align:left;padding:2px 0}
+.bar i{display:block;height:14px;background:var(--ln);border-radius:4px;overflow:hidden}.bar i s{display:block;height:100%;background:var(--ac)}
+.bar:hover i s{background:var(--wa)}
+.two{display:grid;gap:12px;grid-template-columns:1.3fr 1fr}
+.al{padding:9px 0;border-bottom:1px solid var(--ln)}.al:last-child{border:0}
+.sw{position:relative;width:38px;height:22px;flex:none}.sw input{opacity:0;position:absolute;inset:0;margin:0;cursor:pointer}
+.sw i{position:absolute;inset:0;background:var(--ln);border-radius:99px;transition:.15s}.sw i:after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s}
+.sw input:checked+i{background:var(--ac)}.sw input:checked+i:after{left:19px}
+.rule{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--ln)}.rule:last-child{border:0}
+.chat{min-height:150px;display:grid;gap:8px;align-content:start;margin-bottom:12px}
+.m{padding:8px 12px;border-radius:10px;max-width:85%}.m.u{background:var(--ac);color:#fff;justify-self:end}.m.a{background:var(--ac2)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:.2s;z-index:9;max-width:90vw}
+.toast.on{opacity:1}
+.note{font-size:13px;color:var(--mu);margin-top:14px}
+@media(max-width:800px){.app{grid-template-columns:1fr}nav{position:sticky;height:auto;flex-direction:row;overflow-x:auto;padding:8px;top:0;z-index:5}nav h1,nav .sp{display:none}nav button{white-space:nowrap}main{padding:16px}.two{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav id="nav"></nav>
+<main id="v"></main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const Kz=n=>n.toLocaleString('pt-PT')+' Kz';
+const TURMAS=['5.ª A','6.ª B','7.ª A','7.ª B','8.ª A'];
+const NOMES=['Ana Cota','Bento Lima','Carla Neto','Diogo Pires','Eva Santos','Fábio Gomes','Graça Luís','Hélder Dias','Inês Mateus','João Paulo','Kiala Sebastião','Laura Pinto','Mário Fonseca','Nádia Costa','Osvaldo Reis','Paula Tavares','Quintino Alves','Rita Domingos','Samuel Cardoso','Tânia Varela'];
+const PRECO={Propina:45000,Alimentação:18000,Refeitório:8000};
+const ALUNOS=NOMES.map((n,i)=>({id:i+1,nome:n,turma:TURMAS[i%5],ee:'EE de '+n.split(' ')[0],tel:'+244 92'+(3000000+i*7311),
+ refModo:['Alimentação','Só utilização','Nenhum'][i%3],comp:['Bom','Bom','Regular','Bom','Atenção'][i%5],med:+(10+((i*7)%9)+((i%3)/2)).toFixed(1),faltas:(i*3)%9}));
+const CH=[];
+ALUNOS.forEach(a=>{
+ const ov=a.id%4===0, d=3+(a.id*2)%22;
+ CH.push({a,svc:'Propina',val:PRECO.Propina,pago:!ov,atraso:ov?d:0});
+ if(a.refModo!=='Nenhum'){const s=a.refModo==='Alimentação'?'Alimentação':'Refeitório';const ov2=a.id%5===1;CH.push({a,svc:s,val:PRECO[s],pago:!ov2,atraso:ov2?d-2>0?d-2:1:0});}
+});
+const st=c=>c.pago?'<span class="tag t-ok">Pago</span>':'<span class="tag t-er">Em dívida '+c.atraso+' d</span>';
+const S={view:'painel',f:{turma:'',svc:'',est:'',q:''},aluno:1,rules:[
+ {t:'Lembrete 3 dias antes do dia 10',c:'WhatsApp',on:true},{t:'Aviso 3 dias após o vencimento',c:'WhatsApp + SMS',on:true},{t:'Segundo aviso 10 dias após o vencimento',c:'E-mail',on:false},{t:'Alerta à Direcção: dívida acima de 30 dias',c:'App',on:true}]};
+const VIEWS={painel:'Painel da Direcção',cadastro:'Cadastro e matrículas',propinas:'Propinas e cobranças',refeitorio:'Refeitório e serviços',aluno:'Visão 360° do aluno',regras:'Comunicação e regras',primavera:'Integração Primavera',ia:'Assistente'};
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.x);toast.x=setTimeout(()=>e.classList.remove('on'),2200)}
+function go(v,f){S.view=v;if(f)Object.assign(S.f,{turma:'',svc:'',est:'',q:''},f);render();window.scrollTo(0,0)}
+function nav(){document.getElementById('nav').innerHTML='<h1>CLACS Escola<small>Colégio Cota Lionel</small></h1>'+Object.entries(VIEWS).map(([k,l])=>`<button aria-current="${S.view===k}" onclick="go('${k}')">${l}</button>`).join('')+'<span class="sp"></span><button onclick="theme()">Alternar tema</button>'}
+function theme(){const r=document.documentElement;const d=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=d?'light':'dark'}
+function head(){return `<h2>${VIEWS[S.view]}</h2>`}
+const V={
+painel(){
+ const tot=CH.reduce((s,c)=>s+c.val,0),rec=CH.filter(c=>c.pago).reduce((s,c)=>s+c.val,0),dev=CH.filter(c=>!c.pago);
+ const dalu=new Set(dev.map(c=>c.a.id)).size;
+ const bars=TURMAS.filter(t=>CH.some(c=>c.a.turma===t)).map(t=>{const cs=CH.filter(c=>c.a.turma===t);const p=cs.filter(c=>c.pago).reduce((s,c)=>s+c.val,0),T=cs.reduce((s,c)=>s+c.val,0);return `<button class="bar" onclick="go('propinas',{turma:'${t}'})"><span>${t}</span><i><s style="width:${p/T*100}%"></s></i><span>${Math.round(p/T*100)}% pago</span></button>`}).join('');
+ const risco=ALUNOS.filter(a=>a.id%4===0).slice(0,3);
+ return head()+`<p class="sub">Situação de hoje, 15 de Outubro de 2026. Clique num indicador para ver o detalhe.</p>
+ <div class="grid">
+ <button class="card kpi good" onclick="go('propinas',{est:'pago'})"><span>Recebido este mês</span><b>${Kz(rec)}</b></button>
+ <button class="card kpi bad" onclick="go('propinas',{est:'divida'})"><span>Em atraso</span><b>${Kz(tot-rec)}</b></button>
+ <button class="card kpi" onclick="go('propinas',{est:'divida'})"><span>Alunos em incumprimento</span><b>${dalu} de ${ALUNOS.length}</b></button>
+ <button class="card kpi" onclick="go('propinas')"><span>Taxa de cobrança</span><b>${Math.round(rec/tot*100)}%</b></button></div>
+ <div class="two" style="margin-top:12px">
+ <div class="card"><b>Cobrança por turma</b><div class="bars" style="margin-top:10px">${bars}</div></div>
+ <div class="card"><b>Alertas inteligentes</b>
+ ${risco.map(a=>`<div class="al"><span class="tag t-wa">Risco</span> ${a.nome} (${a.turma}) tem 2 meses seguidos com atraso.</div>`).join('')}
+ <div class="al"><span class="tag t-n">Desempenho</span> ${ALUNOS[4].nome} desceu 2 valores na média.</div>
+ <div class="al"><span class="tag t-er">Primavera</span> 2 divergências por resolver.</div></div></div>`},
+propinas(){
+ const f=S.f;let L=CH.filter(c=>(!f.turma||c.a.turma===f.turma)&&(!f.svc||c.svc===f.svc)&&(f.est===''||(f.est==='pago')===c.pago)&&(!f.q||c.a.nome.toLowerCase().includes(f.q.toLowerCase())));
+ const sum=L.filter(c=>!c.pago).reduce((s,c)=>s+c.val,0);
+ const sel=(k,o,l)=>`<select onchange="S.f.${k}=this.value;render()" aria-label="${l}"><option value="">${l}</option>${o.map(x=>`<option value="${x[0]}" ${f[k]===x[0]?'selected':''}>${x[1]}</option>`).join('')}</select>`;
+ return head()+`<p class="sub">Quem pagou e quem deve, por turma, aluno ou serviço.</p>
+ <div class="row">${sel('turma',TURMAS.map(t=>[t,t]),'Todas as turmas')}${sel('svc',Object.keys(PRECO).map(t=>[t,t]),'Todos os serviços')}${sel('est',[['pago','Pagos'],['divida','Em dívida']],'Todos os estados')}
+ <input type="search" placeholder="Procurar aluno" value="${f.q}" oninput="S.f.q=this.value;render(1)" aria-label="Procurar aluno"></div>
+ <div class="row"><span><b>${L.length}</b> registos · em dívida nesta lista: <b>${Kz(sum)}</b></span><span style="flex:1"></span>
+ <button class="btn ghost" onclick="toast('Mapa exportado para Excel')">Exportar Excel</button>
+ <button class="btn" onclick="toast('Lembrete enviado a ${L.filter(c=>!c.pago).length} encarregados')">Enviar lembrete aos devedores</button></div>
+ <div class="tw"><table><thead><tr><th>Aluno</th><th>Turma</th><th>Encarregado</th><th>Serviço</th><th>Valor</th><th>Estado</th></tr></thead><tbody>
+ ${L.map(c=>`<tr class="clk" onclick="S.aluno=${c.a.id};go('aluno')"><td>${c.a.nome}</td><td>${c.a.turma}</td><td>${c.a.ee}</td><td>${c.svc}</td><td>${Kz(c.val)}</td><td>${st(c)}</td></tr>`).join('')||'<tr><td colspan="6">Nenhum registo com estes filtros. Limpe os filtros para ver todos.</td></tr>'}
+ </tbody></table></div>`},
+cadastro(){const t=S.cad||'alunos',ano=ANOS.find(a=>a.act).n,opt=a=>a.map(x=>`<option>${x}</option>`).join('');
+ const tabs=[['alunos','Alunos'],['enc','Encarregados'],['turmas','Turmas'],['anos','Ano lectivo'],['mat','Matrículas']].map(([k,l])=>`<button class="btn ${t===k?'':'ghost'}" onclick="S.cad='${k}';render()">${l}</button>`).join('');
+ const form=(ti,f,fn,l)=>`<div class="card" style="margin-bottom:12px"><b>${ti}</b><div class="row" style="margin-top:10px">${f}<button class="btn" onclick="${fn}">${l}</button></div></div>`;
+ const tw=(h,r)=>`<div class="tw"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r}</tbody></table></div>`;
+ let b='';
+ if(t==='alunos')b=form('Novo aluno',`<input id="fn" placeholder="Nome completo"><input id="fd" type="date" aria-label="Data de nascimento"><select id="ft" aria-label="Turma">${opt(TURMAS)}</select><select id="fe" aria-label="Encarregado">${ENC.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('')}</select>`,'addAl()','Guardar aluno')+tw(['Nº','Nome','Turma','Encarregado','Estado'],ALUNOS.map(a=>`<tr class="clk" onclick="S.aluno=${a.id};go('aluno')"><td>${a.id}</td><td>${a.nome}</td><td>${a.turma}</td><td>${a.ee}</td><td><span class="tag t-ok">Matriculado ${ano}</span></td></tr>`).join(''))+'<p class="note">Encarregado novo? Registe-o primeiro no separador Encarregados.</p>';
+ else if(t==='enc')b=form('Novo encarregado',`<input id="en" placeholder="Nome completo"><select id="ep" aria-label="Parentesco"><option>Mãe</option><option>Pai</option><option>Tutor</option></select><input id="et" placeholder="Telefone (WhatsApp)"><input id="enf" placeholder="NIF (para facturação)">`,'addEnc()','Guardar encarregado')+tw(['Nome','Parentesco','Telefone','NIF','Educandos'],ENC.map(e=>`<tr><td>${e.nome}</td><td>${e.par}</td><td>${e.tel}</td><td>${e.nif}</td><td>${ALUNOS.filter(a=>a.ee===e.nome).map(a=>a.nome).join(', ')||'—'}</td></tr>`).join(''))+'<p class="note">O NIF segue para o Primavera na emissão de facturas. Vários educandos permitem aplicar desconto de irmãos.</p>';
+ else if(t==='turmas')b=form('Nova turma',`<input id="tn" placeholder="Ex.: 9.ª A"><input id="ts" placeholder="Sala"><select id="tp" aria-label="Período"><option>Manhã</option><option>Tarde</option></select><input id="td" placeholder="Director de turma"><input id="tc" type="number" value="30" min="1" aria-label="Capacidade">`,'addTurma()','Guardar turma')+tw(['Turma','Sala','Período','Director de turma','Ocupação'],TI.map(x=>{const n=ALUNOS.filter(a=>a.turma===x.t).length;return `<tr><td>${x.t}</td><td>${x.sala}</td><td>${x.per}</td><td>${x.dir}</td><td>${n}/${x.cap} <span class="tag ${n>=x.cap?'t-er':'t-n'}">${n>=x.cap?'Cheia':'Vagas: '+(x.cap-n)}</span></td></tr>`}).join(''));
+ else if(t==='anos')b=form('Novo ano lectivo',`<input id="an" placeholder="Ex.: 2027/2028"><input id="ai" type="date" aria-label="Início"><input id="af" type="date" aria-label="Fim">`,'addAno()','Guardar ano')+tw(['Ano lectivo','Início','Fim','Estado',''],ANOS.map((a,i)=>`<tr><td>${a.n}</td><td>${a.ini}</td><td>${a.fim}</td><td><span class="tag ${a.act?'t-ok':'t-n'}">${a.act?'Activo':'Encerrado'}</span></td><td>${a.act?'':`<button class="btn ghost" onclick="setAno(${i})">Activar</button>`}</td></tr>`).join(''))+'<p class="note">Períodos de avaliação do ano activo: 1.º trimestre (Set–Dez), 2.º (Jan–Mar), 3.º (Abr–Jul).</p>';
+ else b=form('Nova matrícula ou renovação',`<select id="ma" aria-label="Aluno">${ALUNOS.map(a=>`<option value="${a.id}">${a.nome}</option>`).join('')}</select><select id="mt" aria-label="Turma">${opt(TURMAS)}</select><select id="mk" aria-label="Tipo"><option>Renovação</option><option>Nova matrícula</option><option>Transferência</option></select>`,'addMat()','Registar matrícula '+ano)+tw(['Data','Aluno','Turma','Tipo','Ano'],MAT.slice().reverse().map(m=>`<tr><td>${m.d}</td><td>${m.al}</td><td>${m.t}</td><td>${m.k}</td><td>${m.ano}</td></tr>`).join(''));
+ return head()+`<p class="sub">Ano lectivo activo: <b>${ano}</b>. Registe alunos, encarregados, turmas e matrículas.</p><div class="row">${tabs}</div>`+b},
+refeitorio(){
+ return head()+`<p class="sub">Separa quem paga a alimentação de quem paga só a utilização do refeitório.</p>
+ <div class="grid" style="margin-bottom:12px">${['Alimentação','Só utilização','Nenhum'].map(m=>`<div class="card kpi"><span>${m}</span><b>${ALUNOS.filter(a=>a.refModo===m).length} alunos</b></div>`).join('')}</div>
+ <div class="tw"><table><thead><tr><th>Aluno</th><th>Turma</th><th>Modalidade</th><th>Mensalidade</th><th>Estado</th></tr></thead><tbody>
+ ${ALUNOS.filter(a=>a.refModo!=='Nenhum').map(a=>{const c=CH.find(c=>c.a===a&&c.svc!=='Propina');return `<tr class="clk" onclick="S.aluno=${a.id};go('aluno')"><td>${a.nome}</td><td>${a.turma}</td><td>${a.refModo}</td><td>${Kz(c.val)}</td><td>${st(c)}</td></tr>`}).join('')}
+ </tbody></table></div><p class="note">Extensões previstas: transporte, actividades extra e fardamento, com a mesma estrutura de serviço.</p>`},
+aluno(){
+ const a=ALUNOS.find(x=>x.id==S.aluno),cs=CH.filter(c=>c.a===a);
+ return head()+`<div class="row"><select onchange="S.aluno=this.value;render()" aria-label="Aluno">${ALUNOS.map(x=>`<option value="${x.id}" ${x.id==a.id?'selected':''}>${x.nome} — ${x.turma}</option>`).join('')}</select></div>
+ <div class="grid">
+ <div class="card"><b>${a.nome}</b><br>Turma ${a.turma}<br><span style="color:var(--mu)">${a.ee} · ${a.tel}</span></div>
+ <div class="card"><b>Financeiro</b>${cs.map(c=>`<div class="al">${c.svc}: ${st(c)}</div>`).join('')}</div>
+ <div class="card"><b>Pedagógico</b><div class="al">Média: <b>${a.med}</b></div><div class="al">Faltas: ${a.faltas}</div><div class="al">Comportamento: <span class="tag ${a.comp==='Bom'?'t-ok':a.comp==='Regular'?'t-wa':'t-er'}">${a.comp}</span></div></div></div>
+ <div class="row" style="margin-top:12px"><button class="btn" onclick="toast('Mensagem enviada a ${a.ee}')">Enviar mensagem ao encarregado</button><button class="btn ghost" onclick="toast('Extracto gerado em PDF')">Extracto do aluno</button></div>`},
+regras(){
+ return head()+`<p class="sub">O colégio define as regras sem programação. Cada regra liga um momento a um canal.</p>
+ <div class="card">${S.rules.map((r,i)=>`<div class="rule"><div><b>${r.t}</b><br><span style="color:var(--mu);font-size:13px">Canal: ${r.c}</span></div><label class="sw"><input type="checkbox" ${r.on?'checked':''} onchange="S.rules[${i}].on=this.checked;toast(this.checked?'Regra activada':'Regra desactivada')" aria-label="Activar regra"><i></i></label></div>`).join('')}</div>
+ <div class="card" style="margin-top:12px"><b>Nova regra</b><div class="row" style="margin-top:10px">
+ <input id="nr" placeholder="Ex.: Aviso 5 dias após o vencimento" style="flex:1;min-width:200px"><select id="nc"><option>WhatsApp</option><option>SMS</option><option>E-mail</option><option>App</option></select><button class="btn" onclick="addR()">Adicionar regra</button></div>
+ <div class="al" style="border:0;color:var(--mu)">Modelo de mensagem: «Caro encarregado, a propina de {aluno} vence a {data}. Valor: {valor}.»</div></div>`},
+primavera(){
+ const D=[['Fatura FT 2026/412','Pago no Primavera, pendente na escola','Marcar como pago'],['Cliente EE de Tânia','NIF diferente entre os sistemas','Rever NIF']];
+ return head()+`<p class="sub">O Primavera mantém a facturação legal e a ligação à AGT. Este ecrã só mostra o estado da sincronização.</p>
+ <div class="grid" style="margin-bottom:12px"><div class="card kpi good"><span>Última sincronização</span><b>há 12 min</b></div><div class="card kpi"><span>Documentos sincronizados hoje</span><b>86</b></div><div class="card kpi bad"><span>Divergências</span><b id="dv">${D.length}</b></div></div>
+ <div class="tw"><table><thead><tr><th>Item</th><th>Problema</th><th></th></tr></thead><tbody>${D.map(d=>`<tr><td>${d[0]}</td><td>${d[1]}</td><td><button class="btn ghost" onclick="this.closest('tr').remove();toast('Divergência resolvida')">${d[2]}</button></td></tr>`).join('')}</tbody></table></div>
+ <p class="note">Nota para a equipa: este módulo é simulado. A API real do Primavera deve ser validada (versão e credenciais) antes de implementar.</p>`},
+ia(){return head()+`<p class="sub">Pergunte em linguagem natural. Exemplos: «Quantos alunos da 7.ª estão em dívida?», «Qual a turma com mais atraso?»</p>
+ <div class="card"><div class="chat" id="chat"><div class="m a">Olá. O que quer saber sobre o colégio?</div></div><div class="row"><input id="q" placeholder="Escreva a pergunta" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')ask()"><button class="btn" onclick="ask()">Perguntar</button></div></div>`}};
+const hoje=()=>new Date().toISOString().slice(0,10),gv=id=>document.getElementById(id).value.trim();
+const ENC=ALUNOS.map((a,i)=>({id:a.id,nome:a.ee,par:['Mãe','Pai'][i%2],tel:a.tel,nif:String(5400000000+i*13579)}));
+const TI=TURMAS.map((t,i)=>({t,sala:'Sala '+(i+1),per:i<3?'Manhã':'Tarde',dir:['Marta Silva','Pedro Quim','Joana Ndala','Rui Cassoma','Luísa Baptista'][i],cap:30}));
+const ANOS=[{n:'2026/2027',ini:'2026-09-01',fim:'2027-07-15',act:true},{n:'2025/2026',ini:'2025-09-01',fim:'2026-07-15',act:false}];
+const MAT=ALUNOS.slice(0,5).map(a=>({al:a.nome,t:a.turma,k:'Renovação',ano:'2026/2027',d:'2026-08-'+(10+a.id)}));
+function addAl(){const n=gv('fn');if(!n){toast('Escreva o nome do aluno');return}const e=ENC.find(x=>x.id==gv('fe')),a={id:ALUNOS.length+1,nome:n,turma:gv('ft'),ee:e.nome,tel:e.tel,refModo:'Nenhum',comp:'Bom',med:0,faltas:0};ALUNOS.push(a);CH.push({a,svc:'Propina',val:PRECO.Propina,pago:true,atraso:0});MAT.push({al:n,t:a.turma,k:'Nova matrícula',ano:ANOS.find(x=>x.act).n,d:hoje()});render();toast('Aluno registado e matriculado')}
+function addEnc(){const n=gv('en');if(!n){toast('Escreva o nome do encarregado');return}ENC.push({id:ENC.length+1,nome:n,par:gv('ep'),tel:gv('et')||'—',nif:gv('enf')||'—'});render();toast('Encarregado registado')}
+function addTurma(){const n=gv('tn');if(!n||TURMAS.includes(n)){toast(n?'Esta turma já existe':'Escreva o nome da turma');return}TURMAS.push(n);TI.push({t:n,sala:gv('ts')||'—',per:gv('tp'),dir:gv('td')||'—',cap:+gv('tc')||30});render();toast('Turma criada')}
+function addAno(){const n=gv('an');if(!n){toast('Escreva o ano lectivo');return}ANOS.unshift({n,ini:gv('ai')||'—',fim:gv('af')||'—',act:false});render();toast('Ano lectivo criado')}
+function setAno(i){ANOS.forEach(a=>a.act=false);ANOS[i].act=true;render();toast('Ano '+ANOS[i].n+' activo')}
+function addMat(){const a=ALUNOS.find(x=>x.id==gv('ma'));a.turma=gv('mt');MAT.push({al:a.nome,t:a.turma,k:gv('mk'),ano:ANOS.find(x=>x.act).n,d:hoje()});render();toast('Matrícula registada')}
+function addR(){const t=document.getElementById('nr').value.trim();if(!t){toast('Escreva o nome da regra');return}S.rules.push({t,c:document.getElementById('nc').value,on:true});render();toast('Regra adicionada')}
+function ask(){const i=document.getElementById('q'),q=i.value.trim();if(!q)return;const c=document.getElementById('chat'),l=q.toLowerCase();let r;
+ const t=TURMAS.filter(x=>l.includes(x.slice(0,2)));const dv=CH.filter(x=>!x.pago&&(!t.length||t.includes(x.a.turma)));
+ if(l.includes('mais atraso')||l.includes('pior')){const m={};CH.filter(x=>!x.pago).forEach(x=>m[x.a.turma]=(m[x.a.turma]||0)+x.val);const k=Object.entries(m).sort((a,b)=>b[1]-a[1])[0];r=`A turma ${k[0]} tem mais atraso: ${Kz(k[1])}.`}
+ else if(l.includes('dívida')||l.includes('divida')||l.includes('atraso')){r=`${new Set(dv.map(x=>x.a.id)).size} aluno(s) em dívida${t.length?' ('+t.join(', ')+')':''}, num total de ${Kz(dv.reduce((s,x)=>s+x.val,0))}.`}
+ else if(l.includes('refeit')||l.includes('aliment')){r=`${ALUNOS.filter(a=>a.refModo==='Alimentação').length} alunos pagam alimentação e ${ALUNOS.filter(a=>a.refModo==='Só utilização').length} pagam só a utilização.`}
+ else r='Ainda não sei responder a isso. Tente perguntar sobre dívidas, turmas ou refeitório.';
+ c.insertAdjacentHTML('beforeend',`<div class="m u"></div><div class="m a">${r}</div>`);c.querySelectorAll('.m.u')[c.querySelectorAll('.m.u').length-1].textContent=q;i.value=''}
+function render(keep){const q=keep&&document.activeElement&&document.activeElement.type==='search';nav();document.getElementById('v').innerHTML=V[S.view]();if(q){const e=document.querySelector('input[type=search]');e.focus();e.setSelectionRange(e.value.length,e.value.length)}}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+node_modules
+dist
+.env.local
+docs/api-amostras.json
+*.log
+test-results
+playwright-report
+
+.vercel
+.env*
