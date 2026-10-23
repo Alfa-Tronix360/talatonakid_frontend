@@ -55,7 +55,7 @@ export const label = (v: unknown) => {
 export type Tone = 'ok' | 'er' | 'wa' | 'n'
 const OK = ['pago', 'paga', 'confirmado', 'activo', 'activa', 'presente', 'bom', 'concluido', 'resolvida', 'tratado', 'tratada', 'fechada', 'positiva', 'lida', 'sucesso', 'ok', 'aprovado', 'baixa']
 const ER = ['divida', 'atraso', 'rejeitado', 'falta_injustificada', 'grave', 'cancelada', 'desistente', 'erro', 'reprovado', 'anulada', 'anulado', 'falhou', 'falha', 'inactivo', 'alta']
-const WA = ['pendente', 'parcial', 'regular', 'atencao', 'suspensa', 'moderada', 'falta_justificada', 'atraso_aula', 'aberta', 'em_acompanhamento', 'transferido', 'nova', 'leve', 'media']
+const WA = ['pendente', 'parcial', 'regular', 'atencao', 'suspensa', 'moderada', 'falta_justificada', 'atraso_aula', 'aberta', 'em_acompanhamento', 'transferido', 'nova', 'novo', 'leve', 'media']
 
 export const toneOf = (v: unknown): Tone => {
   const s = String(v ?? '').toLowerCase()

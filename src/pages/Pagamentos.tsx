@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router'
 import { useMemo, useState, type FormEvent } from 'react'
 import { Modal, useConfirm } from '@/components/Modal'
 import { FormDialog } from '@/components/FormDialog'
@@ -88,7 +89,8 @@ function NovoPagamento({ onClose }: { onClose: () => void }) {
 export default function Pagamentos() {
   const toast = useToast()
   const confirm = useConfirm()
-  const [estado, setEstado] = useState('')
+  const [sp] = useSearchParams()
+  const [estado, setEstado] = useState(sp.get('estado') || '')
   const [enc, setEnc] = useState('')
   const [desde, setDesde] = useState('')
   const [ate, setAte] = useState('')

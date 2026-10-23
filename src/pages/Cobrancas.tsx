@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { FormDialog } from '@/components/FormDialog'
-import { ResultDialog, useConfirm } from '@/components/Modal'
+import { Modal, ResultDialog, useConfirm } from '@/components/Modal'
 import { Table } from '@/components/Table'
-import { Btn, Estado, PageHead, SearchBox, Select, Toolbar } from '@/components/ui'
+import { Btn, Estado, Kpi, PageHead, SearchBox, Select, Toolbar } from '@/components/ui'
 import { api, errMsg } from '@/lib/api'
 import { CANAIS, alunoOptions, servicoOptions } from '@/lib/academic'
 import { num, pick, type Row } from '@/lib/data'
 import { Kz, dataPT, hojeISO, mesAno } from '@/lib/format'
 import { useAct, useList } from '@/lib/hooks'
 import { useToast } from '@/components/Toast'
+import { MapaCobranca, ResumoGeracao } from './MapaCobranca'
 
 /** Valor em dívida de uma cobrança, qualquer que seja o formato devolvido. */
 export const emDivida = (r: Row) => {
@@ -43,6 +44,7 @@ export default function Cobrancas() {
   const [sel, setSel] = useState<(string | number)[]>([])
   const [dlg, setDlg] = useState<'avulsa' | 'gerar' | 'lembrete' | null>(null)
   const [res, setRes] = useState<{ t: string; d: unknown } | null>(null)
+  const [gerado, setGerado] = useState<Row | null>(null)
 
   const turmas = useList('/turmas')
   const servicos = useList('/servicos')
@@ -55,7 +57,6 @@ export default function Cobrancas() {
   const totalDivida = useMemo(() => rows.reduce((s, r) => s + emDivida(r), 0), [rows])
   const inv = ['/cobrancas', '/painel', '/alertas']
 
-  const gerar = useAct((p: Row) => api.post('/cobrancas/gerar', p), { invalidate: inv, silent: true, onDone: (r) => setRes({ t: 'Cobranças geradas', d: r }) })
   const avulsa = useAct((p: Row) => api.post('/cobrancas', p), { invalidate: inv, ok: 'Cobrança criada.' })
   const multas = useAct(() => api.post('/cobrancas/aplicar-multas'), { invalidate: inv, silent: true, onDone: (r) => setRes({ t: 'Multas por atraso aplicadas', d: r ?? 'Concluído.' }) })
   const anular = useAct((id: number) => api.post(`/cobrancas/${id}/anular`), { invalidate: inv, ok: 'Cobrança anulada.' })
@@ -75,7 +76,7 @@ export default function Cobrancas() {
         actions={
           <>
             <Btn variant="ghost" onClick={() => setDlg('avulsa')}>Cobrança avulsa</Btn>
-            <Btn variant="ghost" onClick={() => setDlg('gerar')}>Gerar cobranças do mês</Btn>
+            <Btn variant="ghost" onClick={() => setDlg('gerar')}>Gerar mapa de cobrança</Btn>
             <Btn variant="ghost" busy={multas.isPending} onClick={async () => { if (await confirm({ title: 'Aplicar multas', text: 'Aplicar as multas configuradas a todas as cobranças em atraso?', yes: 'Aplicar' })) multas.mutate() }}>Aplicar multas</Btn>
           </>
         }
@@ -88,6 +89,16 @@ export default function Cobrancas() {
           options={[{ value: 'pago', label: 'Pagos' }, { value: 'divida', label: 'Em dívida' }, { value: 'atraso', label: 'Em atraso' }, { value: 'pendente', label: 'Pendentes' }, { value: 'parcial', label: 'Parciais' }]} />
         {(estado || turmaId || servico || q) && <Btn variant="link" onClick={limpar}>Limpar filtros</Btn>}
       </Toolbar>
+      {lista.data?.resumo && (
+        <div className="grid" style={{ marginBottom: 12 }}>
+          <Kpi label="Facturado" value={Kz(lista.data.resumo.facturado)} />
+          <Kpi label="Recebido (quem pagou)" value={Kz(lista.data.resumo.recebido)} tone="good" />
+          <Kpi label="Em aberto (quem deve)" value={Kz(lista.data.resumo.em_aberto)} tone={lista.data.resumo.em_aberto > 0 ? 'warn' : undefined} />
+          <Kpi label="Em atraso" value={Kz(lista.data.resumo.em_atraso)} tone={lista.data.resumo.em_atraso > 0 ? 'bad' : undefined}
+            hint={`${lista.data.resumo.alunos_em_incumprimento} aluno(s) em incumprimento`} />
+          <Kpi label="Taxa de cobrança" value={`${Math.round(lista.data.resumo.taxa_cobranca)}%`} />
+        </div>
+      )}
       <Toolbar>
         <span><b>{rows.length}</b> registos · em dívida nesta lista: <b>{Kz(totalDivida)}</b></span>
         <span className="grow" />
@@ -136,11 +147,11 @@ export default function Cobrancas() {
         ]}
       />
 
-      {dlg === 'gerar' && (
-        <FormDialog title="Gerar cobranças do mês" size="sm" submitLabel="Gerar" onClose={() => setDlg(null)}
-          intro="Cria as propinas e serviços de todos os alunos matriculados. É seguro repetir: não duplica cobranças."
-          fields={[{ name: 'competencia', label: 'Mês de competência', type: 'date', required: true, default: hojeISO().slice(0, 8) + '01', hint: 'Use o primeiro dia do mês.', wide: true }]}
-          onSubmit={(p) => gerar.mutateAsync(p)} />
+      {dlg === 'gerar' && <MapaCobranca invalidate={inv} onClose={() => setDlg(null)} onDone={setGerado} />}
+      {gerado && (
+        <Modal title="Mapa de cobrança gerado" onClose={() => setGerado(null)} footer={<Btn onClick={() => setGerado(null)}>Fechar</Btn>}>
+          <ResumoGeracao r={gerado} />
+        </Modal>
       )}
       {dlg === 'avulsa' && (
         <FormDialog title="Cobrança avulsa" onClose={() => setDlg(null)}

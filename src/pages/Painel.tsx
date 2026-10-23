@@ -350,7 +350,7 @@ export default function Painel() {
   const nav = useNavigate()
   const painel = useGet<Row>('/painel')
   const indic = useList('/indicadores')
-  const alertas = useList('/alertas', { estado: 'nova' })
+  const alertas = useList('/alertas', { estado: 'novo' })
 
   const gerar = useAct(() => api.post('/alertas/gerar'), { invalidate: ['/alertas', '/painel'], ok: 'Alertas recalculados.' })
   const tratarAlerta = useAct((id: number | string) => api.patch(`/alertas/${id}`, { estado: 'tratado' }), { invalidate: ['/alertas', '/painel'], ok: 'Alerta marcado como tratado.' })

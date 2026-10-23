@@ -6,7 +6,8 @@ export function asList<T = Row>(data: unknown): T[] {
   if (Array.isArray(data)) return data as T[]
   if (data && typeof data === 'object') {
     const o = data as Row
-    for (const k of ['items', 'dados', 'data', 'results', 'resultados', 'registos', 'lista']) {
+    // `linhas`: /cobrancas devolve { resumo, linhas }
+    for (const k of ['items', 'linhas', 'dados', 'data', 'results', 'resultados', 'registos', 'lista']) {
       if (Array.isArray(o[k])) return o[k] as T[]
     }
   }
