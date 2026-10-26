@@ -49,10 +49,10 @@ function AlunosPorTurma({ turmas }: { turmas: Row[] }) {
 export default function VisaoGeral() {
   const { user } = useAuth()
   const pode = usePode()
-  const { ano } = useAnoActivo()
+  const { ano, loading: anoLoading } = useAnoActivo()
   const alunos = useList(pode('cadastro') ? '/alunos' : null, { limit: 2000 })
   const turmas = useList('/turmas')
-  const matriculas = useList(pode('cadastro') ? '/matriculas' : null)
+  const matriculas = useList(pode('cadastro') && ano ? '/matriculas' : null) // sem ano lectivo a API responde 409
   const auditoria = useList(pode('utilizadores') ? '/auditoria' : null, { limit: 8 })
   const pedidos = useList(pode('cadastro') ? '/pedidos' : null, { estado: 'pendente' })
 
@@ -66,7 +66,17 @@ export default function VisaoGeral() {
 
   return (
     <>
-      <div className="page-h"><div><h2>Visão geral</h2><p className="sub">Olá, {nameOf(user).split(' ')[0] || 'bem-vindo'}. Resumo da escola no ano lectivo {ano?.designacao ?? ''}.</p></div></div>
+      <div className="page-h"><div><h2>Visão geral</h2><p className="sub">Olá, {nameOf(user).split(' ')[0] || 'bem-vindo'}. {ano ? `Resumo da escola no ano lectivo ${ano.designacao}.` : 'Resumo da escola.'}</p></div></div>
+
+      {!anoLoading && !ano && pode('academico') && (
+        <Card>
+          <div className="vg-inicio">
+            <b>Primeiros passos</b>
+            <span>Ainda não há ano lectivo. Comece por criá-lo e depois as classes, disciplinas, salas, turmas e os serviços com os preços.</span>
+            <Link className="btn" to="/gestao">Ir para a Gestão geral <span aria-hidden="true">➜</span></Link>
+          </div>
+        </Card>
+      )}
 
       <div className="vg-kpis">
         <Card><div className="vg-kpi"><span>Alunos activos</span><b>{alunos.isLoading ? '…' : activos}</b>{nee > 0 && <small className="vg-nee">⚠ {nee} com necessidades especiais</small>}</div></Card>

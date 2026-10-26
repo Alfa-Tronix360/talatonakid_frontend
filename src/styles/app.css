@@ -503,3 +503,7 @@ table.matriz tbody tr:hover { background: var(--sf2); }
 .oc-imgs figcaption { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 12px; margin-top: 4px; }
 .oc-imgs figcaption span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--mu); }
 .oc-conta { white-space: nowrap; }
+
+/* Visão geral sem ano lectivo: primeiros passos */
+.vg-inicio { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.vg-inicio span { flex: 1 1 320px; color: var(--mu); }
