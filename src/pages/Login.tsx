@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '@/auth/AuthContext'
 import { API_BASE, api, errMsg } from '@/lib/api'
 import { Btn } from '@/components/ui'
+import { IlustracaoAdmin, IlustracaoDocente, IlustracaoEncarregado } from '@/components/Ilustracoes'
 import { Logo } from '@/components/Layout'
 
 function ApiStatus() {
@@ -23,27 +24,52 @@ function ApiStatus() {
   )
 }
 
-function AuthShell({ children }: { children: ReactNode }) {
+const ESCOLA = (import.meta.env.VITE_ESCOLA_NOME as string | undefined) || 'Talatona Kids'
+
+const ACESSOS = [
+  { id: 'admin', titulo: 'Administração', sub: 'Direcção, secretaria e financeiro', Ilustracao: IlustracaoAdmin },
+  { id: 'docente', titulo: 'Docente', sub: 'Notas, pautas, faltas e ocorrências', Ilustracao: IlustracaoDocente },
+  { id: 'encarregado', titulo: 'Encarregado', sub: 'Portal do encarregado de educação', Ilustracao: IlustracaoEncarregado },
+] as const
+
+/** Fundo azul-escuro com a marca no topo (ecrã inicial, login e recuperação de senha). */
+function AuthShell({ children, largo }: { children: ReactNode; largo?: boolean }) {
   return (
-    <div className="auth">
-      <section className="auth-hero">
-        <div className="brand" style={{ margin: 0 }}><Logo /><div><b>CLACS Escola</b><small>Colégio Cota Lionel</small></div></div>
-        <h1>Gestão escolar, simples e sob controlo.</h1>
-        <p>Cadastro, propinas, refeitório, pedagógico e comunicação com os encarregados — num só lugar.</p>
-        <ul>
-          <li>Quem pagou e quem deve, por turma, aluno ou serviço</li>
-          <li>Visão 360° do aluno: financeiro e pedagógico</li>
-          <li>Alertas inteligentes e regras de comunicação automáticas</li>
-        </ul>
-      </section>
-      <section className="auth-box">{children}</section>
+    <div className="entrada">
+      <header className="entrada-marca"><Logo /><span>{ESCOLA.toUpperCase()}</span></header>
+      <div className={largo ? 'entrada-largo' : 'entrada-caixa'}>{children}</div>
+      <footer className="entrada-rodape">Copyright © {new Date().getFullYear()} {ESCOLA} | Todos os direitos reservados</footer>
     </div>
+  )
+}
+
+/** Ecrã inicial: escolha do tipo de acesso, como no Exitus. */
+function EscolhaAcesso() {
+  const nav = useNavigate()
+  return (
+    <AuthShell largo>
+      <h1 className="entrada-titulo">Bem-vindo à {ESCOLA}, escolha o seu tipo de acesso:</h1>
+      <div className="acessos">
+        {ACESSOS.map(({ id, titulo, sub, Ilustracao }) => (
+          <section key={id} className="acesso">
+            <h2>{titulo}</h2>
+            <div className="acesso-img"><Ilustracao /></div>
+            <p>{sub}</p>
+            <button type="button" className="btn-acessar" onClick={() => nav(`/login?acesso=${id}`)}>
+              <span aria-hidden="true">➜</span> Acessar
+            </button>
+          </section>
+        ))}
+      </div>
+    </AuthShell>
   )
 }
 
 export function Login() {
   const { user, login, isPortal } = useAuth()
   const nav = useNavigate()
+  const [sp] = useSearchParams()
+  const acesso = ACESSOS.find((a) => a.id === sp.get('acesso'))
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [codigo, setCodigo] = useState('')
@@ -56,7 +82,8 @@ export function Login() {
   })
   const [busy, setBusy] = useState(false)
 
-  if (user) return <Navigate to={isPortal ? '/portal' : '/painel'} replace />
+  if (user) return <Navigate to={isPortal ? '/portal' : '/inicio'} replace />
+  if (!acesso) return <EscolhaAcesso />
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -72,7 +99,9 @@ export function Login() {
   return (
     <AuthShell>
       <form className="auth-form" onSubmit={submit}>
-        <h2>Iniciar sessão</h2>
+        <div className="auth-ilustracao"><acesso.Ilustracao /></div>
+        <h2>Acesso {acesso.titulo.toLowerCase()}</h2>
+        <p className="sub" style={{ margin: 0 }}>{acesso.sub}</p>
         {erro && <div className="err" role="alert">{erro}</div>}
         <label className="fld"><span>E-mail</span>
           <input type="email" autoComplete="username" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -87,7 +116,7 @@ export function Login() {
           </label>
         )}
         <Btn type="submit" busy={busy}>Entrar</Btn>
-        <div className="links"><Link to="/recuperar">Esqueci a palavra-passe</Link></div>
+        <div className="links"><Link to="/login">← Escolher outro acesso</Link><Link to="/recuperar">Esqueci a palavra-passe</Link></div>
         <ApiStatus />
       </form>
     </AuthShell>

@@ -5,7 +5,7 @@ import { Resource } from '@/components/Resource'
 import { Table } from '@/components/Table'
 import { Btn, Loading, PageHead, Select, Tabs, Toolbar } from '@/components/ui'
 import { api } from '@/lib/api'
-import { disciplinaOptions, useAnoActivo } from '@/lib/academic'
+import { disciplinaOptions, useAnoActivo, useEscala } from '@/lib/academic'
 import { num, pick, type Row } from '@/lib/data'
 import { dataPT, hojeISO } from '@/lib/format'
 import { useAct, useList } from '@/lib/hooks'
@@ -14,6 +14,7 @@ function Notas({ av, turmaId, onClose }: { av: Row; turmaId: string; onClose: ()
   const notas = useList(`/avaliacoes/${av.id}/notas`)
   const alunos = useList('/alunos', { turma_id: turmaId, estado: 'activo', limit: 500 })
   const [vals, setVals] = useState<Record<string, { valor: string; observacao: string }>>({})
+  const { maxima } = useEscala()
 
   useEffect(() => {
     const m: Record<string, { valor: string; observacao: string }> = {}
@@ -37,7 +38,7 @@ function Notas({ av, turmaId, onClose }: { av: Row; turmaId: string; onClose: ()
       {notas.isLoading || alunos.isLoading ? <Loading /> : (
         <Table rows={lista} pageSize={0} empty="Esta turma não tem alunos." cols={[
           { h: 'Aluno', k: ['nome_completo', 'nome'] },
-          { h: 'Nota (0–20)', render: (a) => <input type="number" min={0} max={20} step="0.1" style={{ width: 90 }} aria-label={`Nota de ${a.nome_completo}`} value={vals[a.id]?.valor ?? ''} onChange={(e) => set(a.id, 'valor', e.target.value)} /> },
+          { h: `Nota (0–${maxima})`, render: (a) => <input type="number" min={0} max={maxima} step="0.1" style={{ width: 90 }} aria-label={`Nota de ${a.nome_completo}`} value={vals[a.id]?.valor ?? ''} onChange={(e) => set(a.id, 'valor', e.target.value)} /> },
           { h: 'Observação', render: (a) => <input style={{ width: '100%', minWidth: 160 }} aria-label="Observação" value={vals[a.id]?.observacao ?? ''} onChange={(e) => set(a.id, 'observacao', e.target.value)} /> },
         ]} />
       )}
@@ -99,7 +100,7 @@ export default function Avaliacoes() {
         </>
       )}
       {tab === 'tipos' && (
-        <Resource path="/tipos-avaliacao" createLabel="Novo tipo"
+        <Resource path="/tipos-avaliacao" crud="/tipos-avaliacao" createLabel="Novo tipo"
           createFields={[{ name: 'designacao', label: 'Designação', required: true, placeholder: 'Prova mensal' }, { name: 'peso', label: 'Peso', type: 'number', default: 1, asString: true }]}
           cols={[{ h: 'Tipo', k: 'designacao' }, { h: 'Peso', k: 'peso' }]} />
       )}

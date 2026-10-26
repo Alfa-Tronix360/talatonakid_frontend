@@ -170,7 +170,7 @@ export default function Refeitorio() {
         />
       )}
       {tab === 'tipos' && (
-        <Resource path="/refeitorio/tipos" createLabel="Novo tipo" createFields={[{ name: 'designacao', label: 'Designação', required: true, placeholder: 'Almoço' }, { name: 'hora_inicio', label: 'Hora de início', type: 'time' }]}
+        <Resource path="/refeitorio/tipos" crud="/refeitorio/tipos" createLabel="Novo tipo" createFields={[{ name: 'designacao', label: 'Designação', required: true, placeholder: 'Almoço' }, { name: 'hora_inicio', label: 'Hora de início', type: 'time' }]}
           cols={[{ h: 'Refeição', k: ['designacao', 'nome'] }, { h: 'Hora', k: 'hora_inicio' }]} />
       )}
       {tab === 'ementas' && <Ementas />}

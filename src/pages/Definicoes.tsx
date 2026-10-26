@@ -28,8 +28,18 @@ function Escola() {
   )
 }
 
+const CONHECIDOS = [
+  { value: 'capacidade_turma', label: 'capacidade_turma — alunos por turma por omissão (7)' },
+  { value: 'nota_maxima', label: 'nota_maxima — escala das notas (10 ou 20)' },
+  { value: 'nota_minima', label: 'nota_minima — média para positiva/aprovação (metade da máxima)' },
+  { value: 'faltas_maximas', label: 'faltas_maximas — faltas a partir das quais o aluno reprova' },
+  { value: 'dia_vencimento', label: 'dia_vencimento — dia do mês em que a propina vence' },
+  { value: 'desconto_irmaos_automatico', label: 'desconto_irmaos_automatico — true/false' },
+]
+
 function Parametros() {
   const [edit, setEdit] = useState<Row | null>(null)
+  const [novo, setNovo] = useState(false)
   const def = useAct((v: { chave: string; p: Row }) => api.put(`/parametros/${encodeURIComponent(v.chave)}`, v.p), { invalidate: ['/parametros'], ok: 'Parâmetro guardado.' })
   const show = (v: unknown) => (typeof v === 'string' ? v : JSON.stringify(v))
   return (
@@ -43,7 +53,23 @@ function Parametros() {
           { h: 'Descrição', k: 'descricao', nowrap: false },
         ]}
         rowActions={(r) => <Btn variant="link" onClick={() => setEdit(r)}>Alterar</Btn>}
+        toolbar={<Btn onClick={() => setNovo(true)}>Novo parâmetro</Btn>}
       />
+      {novo && (
+        <FormDialog
+          title="Novo parâmetro" size="sm" onClose={() => setNovo(false)}
+          fields={[
+            { name: 'chave', label: 'Parâmetro', type: 'select', options: CONHECIDOS, required: true, wide: true },
+            { name: 'valor', label: 'Valor', required: true, wide: true, placeholder: 'Ex.: 7' },
+            { name: 'descricao', label: 'Descrição', wide: true },
+          ]}
+          onSubmit={(p) => {
+            let valor: unknown = p.valor
+            try { valor = JSON.parse(String(p.valor)) } catch { /* mantém como texto */ }
+            return def.mutateAsync({ chave: String(p.chave), p: { valor, descricao: p.descricao } })
+          }}
+        />
+      )}
       {edit && (
         <FormDialog
           title={`Parâmetro: ${edit.chave}`} size="sm" onClose={() => setEdit(null)} initial={{ valor: show(edit.valor), descricao: edit.descricao }}

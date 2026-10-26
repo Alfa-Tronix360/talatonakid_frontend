@@ -31,6 +31,7 @@ export default function Catalogo() {
       {tab === 'servicos' && (
         <Resource
           path="/servicos" createLabel="Novo serviço" createFields={servicoFields} editFields={servicoFields} editMethod="patch" editPath={(r) => `/servicos/${r.id}`}
+          deletePath={(r) => `/servicos/${r.id}`}
           cols={[
             { h: 'Código', k: 'codigo' }, { h: 'Serviço', k: 'nome' }, { h: 'Categoria', render: (r) => label(pick(r, 'categoria')) },
             { h: 'Periodicidade', render: (r) => label(pick(r, 'periodicidade')) }, { h: 'Artigo Primavera', k: 'artigo_primavera' },
@@ -42,6 +43,8 @@ export default function Catalogo() {
       {tab === 'precos' && (
         <Resource
           path="/precos" params={{ ano_id: ano?.id }}
+          editFields={[{ name: 'valor', label: 'Valor (Kz)', type: 'number', required: true, min: 0, asString: true, wide: true }]}
+          editPath={(r) => `/precos/${r.id}`} deletePath={(r) => `/precos/${r.id}`} deleteName={(r) => `preço de ${r.servico ?? 'serviço'}`}
           hint={`Preços do ano lectivo ${ano ? pick(ano, 'designacao') : 'activo'}. Se definir um preço por classe, ele sobrepõe-se ao preço geral do serviço.`}
           createLabel="Definir preço"
           createFields={[
@@ -62,7 +65,7 @@ export default function Catalogo() {
 
       {tab === 'planos' && (
         <Resource
-          path="/planos-pagamento" createLabel="Novo plano"
+          path="/planos-pagamento" createLabel="Novo plano" crud="/planos-pagamento"
           createFields={[
             { name: 'designacao', label: 'Designação', required: true, placeholder: 'Propina em 10 prestações', wide: true },
             { name: 'num_prestacoes', label: 'N.º de prestações', type: 'number', required: true, default: 10, min: 1 },
@@ -75,7 +78,7 @@ export default function Catalogo() {
 
       {tab === 'multas' && (
         <Resource
-          path="/multas" createLabel="Nova regra de multa"
+          path="/multas" createLabel="Nova regra de multa" crud="/multas" deleteName={() => 'esta regra de multa'}
           hint="A multa aplica-se depois dos dias de tolerância. Use «Aplicar multas» em Propinas e cobranças para a calcular."
           createFields={[
             { name: 'servico_id', label: 'Serviço', type: 'select', options: servicoOptions, empty: '— Todos os serviços —' },
@@ -95,7 +98,7 @@ export default function Catalogo() {
 
       {tab === 'descontos' && (
         <Resource
-          path="/descontos" createLabel="Novo desconto"
+          path="/descontos" createLabel="Novo desconto" crud="/descontos"
           createFields={[
             { name: 'designacao', label: 'Designação', required: true, placeholder: 'Desconto de irmãos', wide: true },
             { name: 'origem', label: 'Origem', type: 'select', required: true, default: 'manual', options: ['manual', 'irmaos', 'bolsa', 'funcionario', 'pontualidade'].map((v) => ({ value: v, label: label(v) })) },
@@ -113,7 +116,7 @@ export default function Catalogo() {
 
       {tab === 'metodos' && (
         <Resource
-          path="/metodos-pagamento" createLabel="Novo método"
+          path="/metodos-pagamento" createLabel="Novo método" crud="/metodos-pagamento"
           createFields={[
             { name: 'nome', label: 'Nome', required: true, placeholder: 'Transferência BAI', wide: true },
             { name: 'tipo', label: 'Tipo', type: 'select', required: true, default: 'numerario', options: ['numerario', 'transferencia', 'multicaixa', 'tpa', 'deposito', 'referencia'].map((v) => ({ value: v, label: label(v) })) },

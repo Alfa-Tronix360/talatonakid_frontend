@@ -42,6 +42,7 @@ function Chamada() {
         <Select label="Disciplina" value={disc} onChange={setDisc} placeholder="Dia inteiro" options={discs} />
         <span className="grow" />
         <Btn variant="ghost" disabled={!turma} onClick={() => marcarTodos('presente')}>Todos presentes</Btn>
+        <Btn variant="ghost" disabled={!turma} onClick={() => marcarTodos('falta_injustificada')}>Todos ausentes</Btn>
         <Btn disabled={!turma || !alunos.rows.length} busy={gravar.isPending} onClick={() => gravar.mutate({
           turma_id: Number(turma), data, disciplina_id: disc ? Number(disc) : undefined,
           registos: alunos.rows.map((a) => ({ aluno_id: a.id, estado: reg[a.id]?.estado ?? 'presente', justificacao: reg[a.id]?.justificacao || undefined })),

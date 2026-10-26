@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { FormDialog, type FieldDef } from '@/components/FormDialog'
-import { ResultDialog } from '@/components/Modal'
+import { ResultDialog, useConfirm } from '@/components/Modal'
 import { Resource } from '@/components/Resource'
 import { Btn, Card, Empty, Loading, PageHead, Switch, Tabs } from '@/components/ui'
 import { api } from '@/lib/api'
@@ -33,6 +33,8 @@ function ListaRegras() {
   const [res, setRes] = useState<{ t: string; d: unknown } | null>(null)
   const toggle = useAct((v: { id: number; activa: boolean }) => api.patch(`/regras/${v.id}`, { activa: v.activa }), { invalidate: ['/regras'], ok: (_, v) => (v.activa ? 'Regra activada.' : 'Regra desactivada.') })
   const criar = useAct((p: Row) => api.post('/regras', p), { invalidate: ['/regras'], ok: 'Regra criada.' })
+  const confirm = useConfirm()
+  const apagar = useAct((id: number) => api.del(`/regras/${id}`), { invalidate: ['/regras'], ok: 'Regra apagada.' })
   const exec = useAct(() => api.post('/regras/executar'), { invalidate: ['/mensagens'], silent: true, onDone: (r) => setRes({ t: 'Regras avaliadas', d: r ?? 'Concluído.' }) })
   const desp = useAct(() => api.post('/mensagens/despachar'), { invalidate: ['/mensagens'], silent: true, onDone: (r) => setRes({ t: 'Mensagens despachadas', d: r ?? 'Concluído.' }) })
 
@@ -56,7 +58,12 @@ function ListaRegras() {
                   <b>{pick(r, 'nome')}</b><br />
                   <span className="mu" style={{ fontSize: 13 }}>{evento}{dias !== undefined ? ` · ${dias} dias` : ''} · Canal: {canais} · Para: {label(pick(r, 'destino') ?? 'encarregado')}</span>
                 </div>
-                <Switch label={`Activar regra ${pick(r, 'nome')}`} checked={pick(r, 'activa', 'activo') !== false} onChange={(v) => toggle.mutate({ id: r.id, activa: v })} />
+                <span className="row-a">
+                  <Switch label={`Activar regra ${pick(r, 'nome')}`} checked={pick(r, 'activa', 'activo') !== false} onChange={(v) => toggle.mutate({ id: r.id, activa: v })} />
+                  <Btn variant="link" onClick={async () => {
+                    if (await confirm({ title: 'Apagar regra', text: `Apagar a regra «${pick(r, 'nome')}»? Pode também só desactivá-la.`, danger: true, yes: 'Apagar' })) apagar.mutate(r.id)
+                  }}>Apagar</Btn>
+                </span>
               </div>
             )
           })
@@ -77,7 +84,7 @@ export default function Regras() {
       <Tabs value={tab} onChange={setTab} tabs={[['regras', 'Regras'], ['modelos', 'Modelos de mensagem']]} />
       {tab === 'regras' ? <ListaRegras /> : (
         <Resource
-          path="/modelos-mensagem" createLabel="Novo modelo"
+          path="/modelos-mensagem" crud="/modelos-mensagem" createLabel="Novo modelo"
           hint="Variáveis disponíveis: {aluno}, {data}, {valor}, {encarregado}, {turma}."
           createFields={[
             { name: 'codigo', label: 'Código', required: true, placeholder: 'lembrete_propina' },

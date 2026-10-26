@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { FormDialog, type FieldDef } from '@/components/FormDialog'
 import { Modal, ResultDialog, useConfirm } from '@/components/Modal'
 import { Resource } from '@/components/Resource'
@@ -6,32 +7,35 @@ import { Table } from '@/components/Table'
 import { Btn, Estado, Loading, PageHead, Select, Tabs } from '@/components/ui'
 import { api } from '@/lib/api'
 import { pick, type Row } from '@/lib/data'
-import { disciplinaOptions, isActivo, useAnoActivo } from '@/lib/academic'
+import { TIPOS_SALA, disciplinaOptions, isActivo, useAnoActivo } from '@/lib/academic'
 import { dataPT, label } from '@/lib/format'
 import { useAct, useList } from '@/lib/hooks'
 
 type Tab = 'anos' | 'niveis' | 'classes' | 'disciplinas' | 'salas' | 'funcionarios'
 
 /* ------------ Ano lectivo ------------ */
+const periodoFields: FieldDef[] = [
+  { name: 'designacao', label: 'Designação', required: true, placeholder: '1.º trimestre', wide: true },
+  { name: 'ordem', label: 'Ordem', type: 'number', required: true },
+  { name: 'data_inicio', label: 'Início', type: 'date', required: true },
+  { name: 'data_fim', label: 'Fim', type: 'date', required: true },
+]
+
 function Periodos({ ano, onClose }: { ano: Row; onClose: () => void }) {
   const q = useList(`/anos-lectivos/${ano.id}/periodos`)
   const [novo, setNovo] = useState(false)
   const criar = useAct((p: Row) => api.post(`/anos-lectivos/${ano.id}/periodos`, p), { invalidate: [`/anos-lectivos/${ano.id}`], ok: 'Período criado.' })
   return (
     <Modal title={`Períodos de avaliação — ${pick(ano, 'designacao')}`} size="lg" onClose={onClose} footer={<><Btn variant="ghost" onClick={() => setNovo(true)}>Novo período</Btn><Btn onClick={onClose}>Fechar</Btn></>}>
-      {q.isLoading ? <Loading /> : (
-        <Table rows={q.rows} pageSize={0} cols={[
+      <Resource path={`/anos-lectivos/${ano.id}/periodos`} pageSize={0}
+        editFields={periodoFields} editPath={(r) => `/periodos/${r.id}`} deletePath={(r) => `/periodos/${r.id}`}
+        cols={[
           { h: 'Ordem', k: 'ordem' }, { h: 'Período', k: ['designacao', 'nome'] },
           { h: 'Início', render: (r) => dataPT(pick(r, 'data_inicio')) }, { h: 'Fim', render: (r) => dataPT(pick(r, 'data_fim')) },
         ]} />
-      )}
       {novo && (
-        <FormDialog title="Novo período" size="sm" onClose={() => setNovo(false)} onSubmit={(p) => criar.mutateAsync(p)} fields={[
-          { name: 'designacao', label: 'Designação', required: true, placeholder: '1.º trimestre', wide: true },
-          { name: 'ordem', label: 'Ordem', type: 'number', required: true, default: (q.rows.length || 0) + 1 },
-          { name: 'data_inicio', label: 'Início', type: 'date', required: true },
-          { name: 'data_fim', label: 'Fim', type: 'date', required: true },
-        ]} />
+        <FormDialog title="Novo período" size="sm" onClose={() => setNovo(false)} onSubmit={(p) => criar.mutateAsync(p)}
+          fields={periodoFields.map((f) => (f.name === 'ordem' ? { ...f, default: (q.rows.length || 0) + 1 } : f))} />
       )}
     </Modal>
   )
@@ -105,6 +109,13 @@ function Anos() {
           { name: 'criar_trimestres', label: 'Períodos', type: 'checkbox', hint: 'Criar os 3 trimestres automaticamente', default: true },
         ]}
         hint="Fechar o ano calcula a média final e a situação de cada aluno. Use primeiro «Simular» para ver o resultado sem gravar."
+        editFields={[
+          { name: 'designacao', label: 'Designação', required: true },
+          { name: 'data_inicio', label: 'Início', type: 'date', required: true },
+          { name: 'data_fim', label: 'Fim', type: 'date', required: true },
+        ]}
+        editPath={(r) => `/anos-lectivos/${r.id}`}
+        deletePath={(r) => `/anos-lectivos/${r.id}`}
         cols={[
           { h: 'Ano lectivo', k: ['designacao', 'nome'] },
           { h: 'Início', render: (r) => dataPT(pick(r, 'data_inicio')) },
@@ -152,10 +163,29 @@ const funcionarioFields: FieldDef[] = [
   { name: 'nif', label: 'NIF' },
   { name: 'telefone', label: 'Telefone', type: 'tel' },
   { name: 'email', label: 'E-mail', type: 'email' },
+  { name: 'ano_contratacao', label: 'Ano de contratação', type: 'number', min: 1950, max: 2100, placeholder: 'Ex.: 2021' },
 ]
 
+const salaFields: FieldDef[] = [
+  { name: 'designacao', label: 'Designação', required: true, placeholder: 'Ex.: Laboratório de Ciências' },
+  { name: 'tipo', label: 'Tipo de sala', type: 'select', options: TIPOS_SALA, default: 'sala_aula', required: true },
+  { name: 'piso', label: 'Piso / andar', placeholder: 'Ex.: R/C, 1.º andar' },
+  { name: 'localizacao', label: 'Localização', placeholder: 'Ex.: Bloco B, ao lado da biblioteca' },
+  { name: 'capacidade', label: 'Capacidade (lugares)', type: 'number', min: 1 },
+  { name: 'observacoes', label: 'Observações', type: 'textarea' },
+]
+const nivelFields: FieldDef[] = [{ name: 'nome', label: 'Nome', required: true, placeholder: 'Ensino Primário' }, { name: 'ordem', label: 'Ordem', type: 'number', default: 0 }]
+const classeFields: FieldDef[] = [
+  { name: 'nivel_id', label: 'Nível', type: 'select', options: { path: '/niveis', label: ['nome'] }, required: true },
+  { name: 'designacao', label: 'Designação', required: true, placeholder: '7.ª classe' },
+  { name: 'ordem', label: 'Ordem', type: 'number', required: true },
+]
+const disciplinaFields: FieldDef[] = [{ name: 'nome', label: 'Nome', required: true }, { name: 'sigla', label: 'Sigla' }]
+
 export default function Academico() {
-  const [tab, setTab] = useState<Tab>('anos')
+  const [sp, setSp] = useSearchParams()
+  const tab = (sp.get('tab') as Tab) || 'anos'
+  const setTab = (t: Tab) => setSp({ tab: t }, { replace: true })
   const [plano, setPlano] = useState<Row | null>(null)
   return (
     <>
@@ -164,34 +194,41 @@ export default function Academico() {
 
       {tab === 'anos' && <Anos />}
       {tab === 'niveis' && (
-        <Resource path="/niveis" createLabel="Novo nível" createFields={[{ name: 'nome', label: 'Nome', required: true, placeholder: 'Ensino Primário' }, { name: 'ordem', label: 'Ordem', type: 'number', default: 0 }]}
+        <Resource path="/niveis" createLabel="Novo nível" createFields={nivelFields} editFields={nivelFields}
+          editPath={(r) => `/niveis/${r.id}`} deletePath={(r) => `/niveis/${r.id}`}
           cols={[{ h: 'Ordem', k: 'ordem' }, { h: 'Nível', k: ['nome', 'designacao'] }]} />
       )}
       {tab === 'classes' && (
         <>
           <Resource path="/classes" createLabel="Nova classe" pageSize={30}
-            createFields={[
-              { name: 'nivel_id', label: 'Nível', type: 'select', options: { path: '/niveis', label: ['nome'] }, required: true },
-              { name: 'designacao', label: 'Designação', required: true, placeholder: '7.ª classe' },
-              { name: 'ordem', label: 'Ordem', type: 'number', required: true },
-            ]}
+            createFields={classeFields} editFields={classeFields}
+            editPath={(r) => `/classes/${r.id}`} deletePath={(r) => `/classes/${r.id}`}
             cols={[{ h: 'Ordem', k: 'ordem' }, { h: 'Classe', k: ['designacao', 'nome'] }, { h: 'Nível', k: ['nivel', 'nivel_nome', 'nivel.nome'] }]}
             rowActions={(r) => <Btn variant="link" onClick={() => setPlano(r)}>Plano curricular</Btn>} />
           {plano && <Plano c={plano} onClose={() => setPlano(null)} />}
         </>
       )}
       {tab === 'disciplinas' && (
-        <Resource path="/disciplinas" search createLabel="Nova disciplina" createFields={[{ name: 'nome', label: 'Nome', required: true }, { name: 'sigla', label: 'Sigla' }]}
+        <Resource path="/disciplinas" search createLabel="Nova disciplina" createFields={disciplinaFields} editFields={disciplinaFields}
+          editPath={(r) => `/disciplinas/${r.id}`} deletePath={(r) => `/disciplinas/${r.id}`}
           cols={[{ h: 'Disciplina', k: ['nome', 'designacao'] }, { h: 'Sigla', k: 'sigla' }]} />
       )}
       {tab === 'salas' && (
-        <Resource path="/salas" createLabel="Nova sala" createFields={[{ name: 'designacao', label: 'Designação', required: true }, { name: 'capacidade', label: 'Capacidade', type: 'number' }]}
-          cols={[{ h: 'Sala', k: ['designacao', 'nome'] }, { h: 'Capacidade', k: 'capacidade' }]} />
+        <Resource path="/salas" search createLabel="Nova sala" createFields={salaFields}
+          editFields={[...salaFields, { name: 'activo', label: 'Estado', type: 'checkbox', hint: 'Sala em uso', default: true }]}
+          editPath={(r) => `/salas/${r.id}`} deletePath={(r) => `/salas/${r.id}`}
+          cols={[
+            { h: 'Sala', k: ['designacao', 'nome'] },
+            { h: 'Tipo', render: (r) => TIPOS_SALA.find((t) => t.value === r.tipo)?.label ?? '—' },
+            { h: 'Piso', k: 'piso' }, { h: 'Localização', k: 'localizacao' }, { h: 'Capacidade', k: 'capacidade' },
+            { h: 'Estado', render: (r) => <Estado v={r.activo === false ? 'inactivo' : 'activo'} /> },
+          ]} />
       )}
       {tab === 'funcionarios' && (
         <Resource path="/funcionarios" search createLabel="Novo funcionário" createFields={funcionarioFields}
           editFields={[...funcionarioFields, { name: 'activo', label: 'Estado', type: 'checkbox', hint: 'Funcionário activo', default: true }]} editPath={(r) => `/funcionarios/${r.id}`}
-          cols={[{ h: 'Nome', k: ['nome_completo', 'nome'] }, { h: 'Cargo', render: (r) => label(pick(r, 'cargo')) }, { h: 'Telefone', k: 'telefone' }, { h: 'E-mail', k: 'email' }, { h: 'Estado', render: (r) => <Estado v={pick(r, 'activo') === false ? 'inactivo' : 'activo'} /> }]} />
+          deletePath={(r) => `/funcionarios/${r.id}`}
+          cols={[{ h: 'Nome', k: ['nome_completo', 'nome'] }, { h: 'Cargo', render: (r) => label(pick(r, 'cargo')) }, { h: 'Contratado em', k: 'ano_contratacao' }, { h: 'Telefone', k: 'telefone' }, { h: 'E-mail', k: 'email' }, { h: 'Estado', render: (r) => <Estado v={pick(r, 'activo') === false ? 'inactivo' : 'activo'} /> }]} />
       )}
     </>
   )

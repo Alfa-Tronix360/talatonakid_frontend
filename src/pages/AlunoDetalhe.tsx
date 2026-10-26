@@ -12,9 +12,9 @@ import { CANAIS, PARENTESCOS, encarregadoOptions, useAnoActivo } from '@/lib/aca
 import { dataPT, label } from '@/lib/format'
 import { useAct, useGet } from '@/lib/hooks'
 import { useToast } from '@/components/Toast'
-import { alunoFields } from './Alunos'
+import { SinalNEE, alunoFields } from './Alunos'
 
-type Tab = 'geral' | 'dados' | 'enc' | 'docs'
+type Tab = 'geral' | 'dados' | 'saude' | 'disc' | 'enc' | 'docs'
 
 export default function AlunoDetalhe() {
   const { id } = useParams()
@@ -85,7 +85,7 @@ export default function AlunoDetalhe() {
               {turma ? `Turma ${typeof turma === 'object' ? nameOf(turma) : turma}` : 'Sem turma'}
               {pick(aluno, 'numero_processo') ? ` · Processo ${pick(aluno, 'numero_processo')}` : ''}
             </div>
-            <div style={{ marginTop: 6 }}><Estado v={pick(aluno, 'estado')} /></div>
+            <div style={{ marginTop: 6 }}><Estado v={pick(aluno, 'estado')} /> <SinalNEE r={aluno} /></div>
           </div>
           <span style={{ flex: 1 }} />
           <label className="btn ghost" style={{ cursor: 'pointer' }}>
@@ -95,9 +95,39 @@ export default function AlunoDetalhe() {
         </div>
       </Card>
 
+      {aluno.necessidade_especial && (
+        <div className="nee" role="alert">
+          <b>⚠ Aluno com necessidades especiais.</b> {pick(aluno, 'necessidades_especiais')}
+          {pick(aluno, 'medicacao') ? <> · Medicação: {pick(aluno, 'medicacao')}</> : null}
+        </div>
+      )}
+
       <div style={{ marginTop: 16 }}>
-        <Tabs<Tab> value={tab} onChange={setTab} tabs={[['geral', 'Visão 360°'], ['dados', 'Dados pessoais'], ['enc', 'Encarregados'], ['docs', 'Documentos e boletim']]} />
+        <Tabs<Tab> value={tab} onChange={setTab} tabs={[['geral', 'Visão 360°'], ['dados', 'Dados pessoais'], ['saude', 'Saúde escolar'], ['disc', 'Disciplinas'], ['enc', 'Encarregados'], ['docs', 'Documentos e boletim']]} />
       </div>
+
+      {tab === 'saude' && (
+        <Card title="Saúde escolar" actions={<Btn variant="ghost" onClick={() => setDlg('editar')}>Editar</Btn>}>
+          <dl className="kv">
+            {([
+              ['Necessidades especiais', pick(aluno, 'necessidades_especiais')], ['Alergias', pick(aluno, 'alergias')],
+              ['Grupo sanguíneo', pick(aluno, 'grupo_sanguineo')], ['Condições de saúde', pick(aluno, 'condicoes_saude')],
+              ['Medicação', pick(aluno, 'medicacao')], ['Contacto de emergência', pick(aluno, 'contacto_emergencia')],
+              ['Telefone de emergência', pick(aluno, 'telefone_emergencia')],
+            ] as [string, unknown][]).map(([k, val]) => <div key={k}><dt>{k}</dt><dd>{(val as string) || '—'}</dd></div>)}
+          </dl>
+        </Card>
+      )}
+
+      {tab === 'disc' && (
+        <Card title="Disciplinas do plano curricular" pad={false}>
+          <Table rows={asList(pick(aluno, 'disciplinas'))} pageSize={0} empty="Sem matrícula activa ou sem plano curricular na classe."
+            cols={[
+              { h: 'Disciplina', k: 'nome' }, { h: 'Sigla', k: 'sigla' },
+              { h: 'Carga horária', k: 'carga_horaria' }, { h: 'Professor', k: 'professor' },
+            ]} />
+        </Card>
+      )}
 
       {tab === 'geral' && (
         v360.isLoading ? <Loading /> : v360.isError ? <ErrorBox error={v360.error} retry={() => v360.refetch()} /> :

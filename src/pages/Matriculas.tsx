@@ -6,7 +6,8 @@ import { Table } from '@/components/Table'
 import { Btn, Estado, Loading, PageHead, Select } from '@/components/ui'
 import { api, errMsg } from '@/lib/api'
 import { pick, type Row } from '@/lib/data'
-import { alunoOptions, turmaOptions, useAnoActivo } from '@/lib/academic'
+import { turmaOptions, useAnoActivo } from '@/lib/academic'
+import { NovaMatricula } from './NovaMatricula'
 import { dataPT, label } from '@/lib/format'
 import { useAct, useList } from '@/lib/hooks'
 import { useToast } from '@/components/Toast'
@@ -32,6 +33,7 @@ export default function Matriculas() {
   const [turma, setTurma] = useState('')
   const turmas = useList('/turmas')
   const [dlg, setDlg] = useState<{ k: 'turma' | 'desc' | 'hist'; m: Row } | null>(null)
+  const [nova, setNova] = useState(false)
 
   const anoId = anoSel || (ano?.id ? String(ano.id) : '')
   const inv = ['/matriculas', '/alunos', '/turmas']
@@ -50,17 +52,11 @@ export default function Matriculas() {
           <>
             <Select label="Ano lectivo" value={anoId} onChange={setAnoSel} options={anos.map((a) => ({ value: a.id, label: String(pick(a, 'designacao', 'nome')) }))} />
             <Select label="Turma" value={turma} onChange={setTurma} placeholder="Todas as turmas" options={turmas.rows.map((t) => ({ value: t.id, label: String(pick(t, 'designacao', 'nome')) }))} />
+            <Btn onClick={() => setNova(true)}>Nova matrícula</Btn>
           </>
         }
-        createLabel="Nova matrícula"
-        createFields={[
-          { name: 'aluno_id', label: 'Aluno', type: 'select', options: alunoOptions, required: true, wide: true },
-          { name: 'turma_id', label: 'Turma', type: 'select', options: turmaOptions, required: true },
-          { name: 'tipo', label: 'Tipo', type: 'select', required: true, default: 'renovacao', options: [{ value: 'renovacao', label: 'Renovação' }, { value: 'nova', label: 'Nova matrícula' }, { value: 'transferencia', label: 'Transferência' }] },
-          { name: 'observacoes', label: 'Observações', type: 'textarea' },
-        ]}
         invalidate={inv}
-        hint="Se o aluno já estiver matriculado no ano activo, a matrícula muda-o de turma."
+        hint="Escolha a classe e o sistema propõe a turma com vaga (enche a A, depois a B…). Se o aluno já estiver matriculado no ano activo, a matrícula muda-o de turma."
         cols={[
           { h: 'Data', render: (r) => dataPT(pick(r, 'data_matricula', 'data', 'criado_em', 'created_at')) },
           { h: 'Aluno', k: ['aluno', 'aluno_nome', 'aluno.nome_completo', 'nome_completo'] },
@@ -79,6 +75,7 @@ export default function Matriculas() {
           </>
         )}
       />
+      {nova && <NovaMatricula invalidate={inv} onClose={() => setNova(false)} />}
       {dlg?.k === 'hist' && <Historico m={dlg.m} onClose={() => setDlg(null)} />}
       {dlg?.k === 'turma' && (
         <FormDialog

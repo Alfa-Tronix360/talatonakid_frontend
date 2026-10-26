@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '@/auth/AuthContext'
+import { Avatar } from '@/components/Layout'
 import { Btn, Card, Field, KV, PageHead } from '@/components/ui'
 import { api } from '@/lib/api'
 import { label } from '@/lib/format'
@@ -67,20 +68,45 @@ function DoisPassos({ activo, onChange }: { activo: boolean; onChange: () => voi
   )
 }
 
+/** O meu perfil: fotografia, nome e telefone (o e-mail e os perfis são geridos pelo administrador). */
+function MeuPerfil() {
+  const { user, reload } = useAuth()
+  const [nome, setNome] = useState(String(pick(user, 'nome') ?? ''))
+  const [tel, setTel] = useState(String(pick(user, 'telefone') ?? ''))
+  const guardar = useAct(() => api.patch('/auth/me', { nome: nome.trim(), telefone: tel.trim() || null }), { ok: 'Perfil actualizado.', onDone: () => reload() })
+  const foto = useAct((f: File) => { const d = new FormData(); d.append('ficheiro', f); return api.form('/auth/me/foto', d) }, { ok: 'Fotografia actualizada.', onDone: () => reload() })
+  return (
+    <Card title="O meu perfil">
+      <div className="perfil-eu">
+        <div className="perfil-foto">
+          <Avatar user={user} size={96} />
+          <label className="btn ghost sm" style={{ cursor: 'pointer' }}>
+            {foto.isPending ? 'A enviar…' : 'Mudar fotografia'}
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="sr" onChange={(e) => { const f = e.target.files?.[0]; if (f) foto.mutate(f); e.target.value = '' }} />
+          </label>
+        </div>
+        <form className="grow" onSubmit={(e) => { e.preventDefault(); guardar.mutate() }}>
+          <div className="fgrid">
+            <Field label="Nome" wide><input required minLength={2} value={nome} onChange={(e) => setNome(e.target.value)} /></Field>
+            <Field label="Telefone"><input type="tel" value={tel} onChange={(e) => setTel(e.target.value)} /></Field>
+            <Field label="E-mail" hint="Alterado pelo administrador"><input value={String(pick(user, 'email') ?? '')} disabled /></Field>
+            <Field label="Perfis" wide><input value={perfisOf(user).map(label).join(', ')} disabled /></Field>
+          </div>
+          <div className="form-f"><Btn type="submit" busy={guardar.isPending}>Guardar</Btn></div>
+        </form>
+      </div>
+    </Card>
+  )
+}
+
 export default function Conta() {
   const { user, reload } = useAuth()
   const activo = !!pick(user, 'doisfa_activo', 'dois_fa', 'totp_activo', 'tem_2fa', '2fa_activo', 'doisfa')
   return (
     <>
-      <PageHead title="A minha conta" sub="Dados de acesso e segurança." />
-      <div className="stack" style={{ maxWidth: 760 }}>
-        <Card title="Perfil">
-          <dl className="kv">
-            <div><dt>Nome</dt><dd>{nameOf(user)}</dd></div>
-            <div><dt>E-mail</dt><dd>{pick(user, 'email') ?? '—'}</dd></div>
-            <div><dt>Perfis</dt><dd>{perfisOf(user).map(label).join(', ') || '—'}</dd></div>
-          </dl>
-        </Card>
+      <PageHead title="Configurações" sub={`O seu perfil e a segurança da conta, ${nameOf(user).split(' ')[0] || ''}.`} />
+      <div className="stack" style={{ maxWidth: 820 }}>
+        <MeuPerfil />
         <Senha />
         <DoisPassos activo={activo} onChange={reload} />
       </div>

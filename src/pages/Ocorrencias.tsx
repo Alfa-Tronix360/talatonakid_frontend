@@ -29,6 +29,7 @@ export default function Ocorrencias() {
             { name: 'accao_tomada', label: 'Acção tomada', type: 'textarea' },
           ]}
           editPath={(r) => `/ocorrencias/${r.id}`}
+          deletePath={(r) => `/ocorrencias/${r.id}`} deleteName={() => 'esta ocorrência'}
           cols={[
             { h: 'Data', render: (r) => dataPT(pick(r, 'data')) },
             { h: 'Aluno', k: ['aluno', 'aluno_nome', 'aluno.nome_completo'] },
@@ -40,7 +41,7 @@ export default function Ocorrencias() {
         />
       )}
       {tab === 'tipos' && (
-        <Resource path="/tipos-ocorrencia" createLabel="Novo tipo"
+        <Resource path="/tipos-ocorrencia" crud="/tipos-ocorrencia" createLabel="Novo tipo"
           createFields={[
             { name: 'designacao', label: 'Designação', required: true, wide: true },
             { name: 'gravidade', label: 'Gravidade', type: 'select', required: true, default: 'leve', options: ['positiva', 'leve', 'moderada', 'grave'].map((v) => ({ value: v, label: label(v) })) },

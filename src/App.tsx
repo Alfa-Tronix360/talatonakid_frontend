@@ -31,29 +31,36 @@ function Shell() {
 
 function Area({ portal }: { portal: boolean }) {
   const { isPortal } = useAuth()
-  if (portal !== isPortal) return <Navigate to={isPortal ? '/portal' : '/painel'} replace />
+  if (portal !== isPortal) return <Navigate to={isPortal ? '/portal' : '/inicio'} replace />
   return <Outlet />
 }
 
 function Home() {
   const { isPortal } = useAuth()
-  return <Navigate to={isPortal ? '/portal' : '/painel'} replace />
+  return <Navigate to={isPortal ? '/portal' : '/inicio'} replace />
 }
 
 const staff: RouteObject[] = [
+  at('inicio', () => import('@/pages/VisaoGeral')),
+  at('gestao', () => import('@/pages/GestaoGeral')),
+  at('perfis', () => import('@/pages/Perfis')),
   at('painel', () => import('@/pages/Painel')),
   at('alertas', () => import('@/pages/Alertas')),
   at('assistente', () => import('@/pages/Assistente')),
+  at('avaliacao-professores', () => import('@/pages/AvaliacaoProfessores')),
   at('alunos', () => import('@/pages/Alunos')),
   at('alunos/:id', () => import('@/pages/AlunoDetalhe')),
   at('encarregados', () => import('@/pages/Encarregados')),
   at('matriculas', () => import('@/pages/Matriculas')),
+  at('pedidos', () => import('@/pages/Pedidos')),
+  at('transporte', () => import('@/pages/Transporte')),
   at('turmas', () => import('@/pages/Turmas')),
   at('academico', () => import('@/pages/Academico')),
   at('cobrancas', () => import('@/pages/Cobrancas')),
   at('pagamentos', () => import('@/pages/Pagamentos')),
   at('refeitorio', () => import('@/pages/Refeitorio')),
   at('catalogo', () => import('@/pages/Catalogo')),
+  at('pedagogico/alunos', () => import('@/pages/AlunosPedagogico')),
   at('avaliacoes', () => import('@/pages/Avaliacoes')),
   at('pautas', () => import('@/pages/Pautas')),
   at('assiduidade', () => import('@/pages/Assiduidade')),
@@ -74,6 +81,7 @@ const portal: RouteObject[] = [
   at('portal/educandos/:id', () => import('@/portal/Educando')),
   at('portal/cobrancas', () => import('@/portal/Cobrancas')),
   at('portal/pagamentos', () => import('@/portal/Pagamentos')),
+  at('portal/pedidos', () => import('@/portal/Pedidos')),
   at('portal/mensagens', () => import('@/portal/Mensagens')),
   at('portal/preferencias', () => import('@/portal/Preferencias')),
 ]

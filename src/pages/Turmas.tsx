@@ -15,7 +15,7 @@ const comuns: FieldDef[] = [
   { name: 'sala_id', label: 'Sala', type: 'select', options: salaOptions },
   { name: 'periodo_dia', label: 'Período do dia', type: 'select', options: PERIODOS_DIA, default: 'manha', required: true },
   { name: 'director_turma_id', label: 'Director de turma', type: 'select', options: { ...funcionarioOptions, filter: (r) => !r.cargo || ['professor', 'coordenador', 'director'].includes(String(r.cargo)) } },
-  { name: 'capacidade', label: 'Capacidade', type: 'number', default: 30, min: 1 },
+  { name: 'capacidade', label: 'Capacidade (alunos)', type: 'number', min: 1, hint: 'Em branco: o máximo por omissão da escola (7, em Definições)' },
 ]
 const createFields: FieldDef[] = [
   comuns[0],
@@ -68,6 +68,7 @@ export default function Turmas() {
         createFields={createFields}
         editFields={comuns}
         editPath={(r) => `/turmas/${r.id}`}
+        deletePath={(r) => `/turmas/${r.id}`}
         cols={[
           { h: 'Turma', k: ['designacao', 'nome'] },
           { h: 'Classe', k: ['classe', 'classe_designacao', 'classe.designacao'] },

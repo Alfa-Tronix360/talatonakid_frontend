@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { FormDialog, type FieldDef } from '@/components/FormDialog'
 import { Resource } from '@/components/Resource'
-import { Btn, Estado, PageHead } from '@/components/ui'
+import { Link } from 'react-router'
+import { Btn, Estado, PageHead, Tag } from '@/components/ui'
 import { api } from '@/lib/api'
-import { pick, type Row } from '@/lib/data'
+import { asList, num, pick, type Row } from '@/lib/data'
+import { Kz } from '@/lib/format'
 import { CANAIS } from '@/lib/academic'
 import { useAct } from '@/lib/hooks'
 
@@ -17,6 +19,33 @@ const fields: FieldDef[] = [
   { name: 'profissao', label: 'Profissão' },
   { name: 'morada', label: 'Morada', wide: true },
 ]
+
+/** Linha expandida: educandos (com ligação à ficha) e o resumo das contas do encarregado. */
+function DetalheEncarregado({ r }: { r: Row }) {
+  const educandos = asList(pick(r, 'educandos'))
+  return (
+    <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+      <div>
+        <b>Educandos</b>
+        {educandos.length ? (
+          <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+            {educandos.map((a: Row) => <li key={a.id}><Link to={`/alunos/${a.id}`}>{a.nome ?? a.nome_completo}</Link></li>)}
+          </ul>
+        ) : <p className="mu" style={{ margin: '6px 0 0' }}>Sem educandos ligados.</p>}
+      </div>
+      <div>
+        <b>Contas</b>
+        <p style={{ margin: '6px 0 0' }}>
+          Pago: <b>{Kz(pick(r, 'total_pago'))}</b> · Em dívida: <b>{Kz(pick(r, 'total_em_divida'))}</b>
+          {num(pick(r, 'cobrancas_em_atraso')) > 0 ? <> · {pick(r, 'cobrancas_em_atraso')} cobrança(s) em atraso</> : null}
+        </p>
+        <p style={{ margin: '6px 0 0' }}>
+          {[pick(r, 'email'), pick(r, 'nif') && `NIF ${pick(r, 'nif')}`, pick(r, 'profissao')].filter(Boolean).join(' · ')}
+        </p>
+      </div>
+    </div>
+  )
+}
 
 export default function Encarregados() {
   const [prefs, setPrefs] = useState<Row | null>(null)
@@ -34,12 +63,20 @@ export default function Encarregados() {
         createLabel="Novo encarregado"
         editFields={[...fields, { name: 'activo', label: 'Estado', type: 'checkbox', hint: 'Encarregado activo', default: true }]}
         editPath={(r) => `/encarregados/${r.id}`}
+        hint="Clique num encarregado para ver os educandos e a situação das contas."
+        deletePath={(r) => `/encarregados/${r.id}`}
+        expand={(r) => <DetalheEncarregado r={r} />}
         cols={[
           { h: 'Nome', k: ['nome_completo', 'nome'] },
           { h: 'Telefone', k: ['telefone', 'whatsapp'] },
-          { h: 'E-mail', k: 'email' },
-          { h: 'NIF', k: 'nif' },
-          { h: 'Educandos', render: (r) => { const e = pick(r, 'educandos', 'alunos'); return Array.isArray(e) ? e.map((a: Row) => a.nome_completo ?? a.nome ?? a).join(', ') || '—' : (pick(r, 'num_educandos', 'total_educandos') ?? '—') } },
+          { h: 'N.º de filhos', right: true, render: (r) => pick(r, 'num_educandos') ?? asList(pick(r, 'educandos')).length },
+          { h: 'Pago', right: true, render: (r) => Kz(pick(r, 'total_pago')) },
+          {
+            h: 'Em dívida', right: true,
+            render: (r) => (num(pick(r, 'total_em_divida')) > 0
+              ? <span style={{ color: 'var(--er)', fontWeight: 600 }}>{Kz(pick(r, 'total_em_divida'))}</span> : '—'),
+          },
+          { h: 'Em atraso', right: true, render: (r) => (num(pick(r, 'cobrancas_em_atraso')) > 0 ? <Tag tone="er">{pick(r, 'cobrancas_em_atraso')} cobrança(s)</Tag> : '—') },
           { h: 'Estado', render: (r) => <Estado v={pick(r, 'activo') === false ? 'inactivo' : 'activo'} /> },
         ]}
         rowActions={(r) => (

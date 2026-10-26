@@ -59,12 +59,15 @@ type Props<T extends Row> = {
   selected?: (string | number)[]
   onSelect?: (ids: (string | number)[]) => void
   foot?: ReactNode
+  /** Detalhe mostrado por baixo da linha ao clicar nela (substitui onRow). */
+  expand?: (r: T) => ReactNode
 }
 
 export function Table<T extends Row = Row>({
-  rows, cols, onRow, rowKey, loading, error, onRetry, empty, pageSize = 25, selected, onSelect, foot,
+  rows, cols, onRow, rowKey, loading, error, onRetry, empty, pageSize = 25, selected, onSelect, foot, expand,
 }: Props<T>) {
   const [page, setPage] = useState(0)
+  const [aberta, setAberta] = useState<string | number | null>(null)
   useEffect(() => { setPage(0) }, [rows.length])
 
   if (loading && !rows.length) return <div className="tw"><Loading /></div>
@@ -103,13 +106,17 @@ export function Table<T extends Row = Row>({
             <tbody>
               {view.map((r, i) => {
                 const k = key(r, cur * pageSize + i)
-                return (
+                // Com `expand`, clicar na linha abre/fecha o detalhe por baixo dela.
+                const clique = expand ? () => setAberta(aberta === k ? null : k) : onRow ? () => onRow(r) : undefined
+                const detalhe = expand && aberta === k ? expand(r) : null
+                return [
                   <tr
                     key={k}
-                    className={onRow ? 'clk' : ''}
-                    tabIndex={onRow ? 0 : undefined}
-                    onClick={onRow ? () => onRow(r) : undefined}
-                    onKeyDown={onRow ? (e) => { if (e.key === 'Enter') onRow(r) } : undefined}
+                    className={clique ? 'clk' : ''}
+                    tabIndex={clique ? 0 : undefined}
+                    aria-expanded={expand ? aberta === k : undefined}
+                    onClick={clique}
+                    onKeyDown={clique ? (e) => { if (e.key === 'Enter') clique() } : undefined}
                   >
                     {onSelect && (
                       <td className="chk" onClick={(e) => e.stopPropagation()}>
@@ -124,8 +131,13 @@ export function Table<T extends Row = Row>({
                     {columns.map((c) => (
                       <td key={c.h} className={`${c.right ? 'r' : ''} ${c.nowrap === false ? 'wrap' : ''}`}>{cell(c, r, i)}</td>
                     ))}
-                  </tr>
-                )
+                  </tr>,
+                  detalhe ? (
+                    <tr key={`${k}-detalhe`} className="detalhe">
+                      <td colSpan={columns.length + (onSelect ? 1 : 0)}>{detalhe}</td>
+                    </tr>
+                  ) : null,
+                ]
               })}
             </tbody>
           </table>

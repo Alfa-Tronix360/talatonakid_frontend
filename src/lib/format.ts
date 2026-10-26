@@ -3,6 +3,8 @@ import { num } from './data'
 export const Kz = (v: unknown) => `${num(v).toLocaleString('pt-PT', { maximumFractionDigits: 2 })} Kz`
 
 export const pct = (v: number) => `${Math.round(v)}%`
+/** Nota ou média com uma casa decimal; "—" sem valor. */
+export const fmtNota = (v: unknown) => (v === null || v === undefined || v === '' ? '—' : Number(v).toLocaleString('pt-PT', { minimumFractionDigits: 1, maximumFractionDigits: 1 }))
 
 export function dataPT(v: unknown, withTime = false) {
   if (!v) return '—'
