@@ -20,8 +20,8 @@ type Props = {
   createInitial?: Row
   createMethod?: 'post' | 'put'
   beforeCreate?: (p: Row) => Row
-  /** Corre depois de criar com sucesso (ex.: despachar algo que o registo acabou de pôr em fila). */
-  afterCreate?: (r: Row) => void | Promise<void>
+  /** Corre depois de criar com sucesso (ex.: despachar algo que o registo acabou de pôr em fila, enviar os ficheiros escolhidos). */
+  afterCreate?: (r: Row, valores: Row) => void | Promise<void>
   editFields?: FieldDef[]
   editPath?: (r: Row) => string
   editMethod?: 'patch' | 'put'
@@ -61,9 +61,9 @@ export function Resource({
   const inv = invalidate ?? [path]
 
   const criar = useAct(
-    async (p: Row) => {
+    async ({ p, v }: { p: Row; v: Row }) => {
       const r = await api[createMethod](path, beforeCreate ? beforeCreate(p) : p)
-      await afterCreate?.(r)
+      await afterCreate?.(r, v)
       return r
     },
     { invalidate: inv, ok: 'Registo criado.' },
@@ -117,7 +117,7 @@ export function Resource({
           fields={createFields}
           initial={createInitial}
           onClose={() => setCreating(false)}
-          onSubmit={(p) => criar.mutateAsync(p)}
+          onSubmit={(p, v) => criar.mutateAsync({ p, v })}
         />
       )}
       {editing && editFields && (

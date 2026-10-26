@@ -31,6 +31,8 @@ export type FieldDef = {
   min?: number
   max?: number
   accept?: string
+  /** Ficheiro: aceita vários (o valor passa a ser uma lista de File). */
+  multiple?: boolean
   default?: any
   showIf?: (v: Row) => boolean
   /** Mantém o valor como texto (decimais enviados como string). */
@@ -137,7 +139,8 @@ export function FormFields({ fields, values, set }: { fields: FieldDef[]; values
             </span>
           )
         else if (t === 'file')
-          input = <input type="file" accept={f.accept} required={f.required} onChange={(e) => set(f.name, e.target.files?.[0] ?? null)} />
+          input = <input type="file" accept={f.accept} required={f.required} multiple={f.multiple}
+            onChange={(e) => set(f.name, f.multiple ? [...(e.target.files ?? [])] : e.target.files?.[0] ?? null)} />
         else
           input = (
             <input

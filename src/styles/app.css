@@ -487,3 +487,19 @@ table.matriz tbody tr:hover { background: var(--sf2); }
 .perfil-foto { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .perfil-foto .avatar-sm { font-size: 30px; }
 .perfil-eu .grow { flex: 1; min-width: 260px; }
+
+/* Ocorrências: fotografias */
+/* fica à vista mesmo com a tabela deslocada para o lado */
+.oc-det { position: sticky; left: 16px; width: min(680px, calc(100vw - 80px)); }
+.oc-det p { margin: 0 0 8px; }
+.oc-imgs { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 4px; }
+.oc-imgs figure { margin: 0; width: 132px; }
+.oc-img { width: 132px; height: 100px; padding: 0; border: 1px solid var(--ln); border-radius: 8px; background: var(--sf); overflow: hidden;
+  display: grid; place-items: center; cursor: pointer; color: var(--mu); }
+.oc-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.oc-img:hover { border-color: var(--ac); }
+.oc-novo { border-style: dashed; font-size: 13px; gap: 2px; align-content: center; }
+.oc-novo b { font-size: 26px; line-height: 1; color: var(--ac); }
+.oc-imgs figcaption { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 12px; margin-top: 4px; }
+.oc-imgs figcaption span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--mu); }
+.oc-conta { white-space: nowrap; }
