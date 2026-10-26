@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { useConfirm } from '@/components/Modal'
 import { Table } from '@/components/Table'
 import { Btn, Estado, PageHead, Select, Toolbar } from '@/components/ui'
@@ -8,7 +8,7 @@ import { dataPT } from '@/lib/format'
 import { api } from '@/lib/api'
 import { useAct, useList } from '@/lib/hooks'
 
-const TIPOS = [
+export const TIPOS_ALERTA = [
   { value: 'comprovativo_pagamento', label: 'Comprovativos por verificar' },
   { value: 'pedido_encarregado', label: 'Pedidos dos encarregados' },
   { value: 'risco_incumprimento', label: 'Risco de incumprimento' },
@@ -17,13 +17,15 @@ const TIPOS = [
   { value: 'comportamento', label: 'Comportamento' },
   { value: 'divergencia_primavera', label: 'Divergências Primavera' },
 ]
-const nomeTipo = (t: unknown) => TIPOS.find((x) => x.value === t)?.label ?? String(t ?? '')
+const TIPOS = TIPOS_ALERTA
+export const nomeTipo = (t: unknown) => TIPOS.find((x) => x.value === t)?.label ?? String(t ?? '')
 
 export default function Alertas() {
   const nav = useNavigate()
   const confirm = useConfirm()
-  const [estado, setEstado] = useState('')
-  const [tipo, setTipo] = useState('')
+  const [url] = useSearchParams() // o Painel abre já filtrado: /alertas?tipo=…&estado=novo
+  const [estado, setEstado] = useState(url.get('estado') ?? '')
+  const [tipo, setTipo] = useState(url.get('tipo') ?? '')
   const q = useList('/alertas', { estado, tipo })
   const inv = ['/alertas', '/painel', '/pagamentos', '/cobrancas']
   const gerar = useAct(() => api.post('/alertas/gerar'), { invalidate: ['/alertas', '/painel'], ok: (r) => `Alertas calculados${r?.novos !== undefined ? `: ${r.novos} novo(s)` : '.'}` })

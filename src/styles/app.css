@@ -507,3 +507,18 @@ table.matriz tbody tr:hover { background: var(--sf2); }
 /* Visão geral sem ano lectivo: primeiros passos */
 .vg-inicio { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
 .vg-inicio span { flex: 1 1 320px; color: var(--mu); }
+
+/* Painel da Direcção: quatro áreas da escola */
+.pd-areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.pd-linhas { list-style: none; margin: 0; padding: 0; }
+.pd-linhas li + li { border-top: 1px solid var(--ln); }
+.pd-linhas button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 2px;
+  background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.pd-linhas button:disabled { cursor: default; }
+.pd-linhas button:not(:disabled):hover span { color: var(--ac); }
+.pd-linhas span { display: flex; flex-direction: column; }
+.pd-linhas small { color: var(--mu); font-size: 12px; }
+.pd-linhas b { font-size: 20px; white-space: nowrap; }
+.pd-good { color: var(--ok); }
+.pd-bad { color: var(--er); }
+.pd-warn { color: var(--wa); }
