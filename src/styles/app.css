@@ -522,3 +522,10 @@ table.matriz tbody tr:hover { background: var(--sf2); }
 .pd-good { color: var(--ok); }
 .pd-bad { color: var(--er); }
 .pd-warn { color: var(--wa); }
+
+/* Escolha do módulo (administrador, depois de entrar): os mesmos quadros, a quebrar em linhas centradas */
+.acessos.modulos { display: flex; flex-wrap: wrap; justify-content: center; }
+.acessos.modulos .acesso { flex: 0 1 300px; }
+.modulos-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin-top: 26px; }
+.modulos-links a, .modulos-links button { color: #cfe3f5; background: none; border: 0; font: inherit; font-size: 14px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.modulos-links a:hover, .modulos-links button:hover { color: #fff; }

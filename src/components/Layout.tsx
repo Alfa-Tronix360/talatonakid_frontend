@@ -7,6 +7,7 @@ import { AuthImage } from './AuthImage'
 /* ---------------------------------------------------------------- ícones do menu (traço simples) */
 const PATHS: Record<string, string> = {
   home: 'M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+  modulos: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
   gestao: 'M4 6h16M4 12h16M4 18h16',
   painel: 'M4 20V10M10 20V4M16 20v-7M22 20H2',
   aluno: 'M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6',
@@ -151,6 +152,8 @@ function Lado({ open, children }: { open: boolean; children: ReactNode }) {
 export function Layout() {
   const loc = useLocation()
   const pode = usePode()
+  const { perfis } = useAuth()
+  const admin = perfis.includes('admin')
   const [aberto, setAberto] = useState(false)          // menu no telemóvel
   const [escondido, setEscondido] = useState(false)    // menu recolhido no computador
   const [grupoAberto, setGrupoAberto] = useState<string | undefined>(() => grupoDe(loc.pathname))
@@ -164,6 +167,7 @@ export function Layout() {
       {aberto && <div className="scrim" onClick={() => setAberto(false)} />}
       <Lado open={aberto}>
         <NavLink to="/inicio" className={nl}><Icone n="home" /> Home</NavLink>
+        {admin && <NavLink to="/modulos" className={nl}><Icone n="modulos" /> Módulos</NavLink>}
         <NavLink to="/gestao" className={nl}><Icone n="gestao" /> Gestão geral</NavLink>
         {pode('painel') && <NavLink to="/painel" className={nl}><Icone n="painel" /> Painel da direcção</NavLink>}
         <hr className="side-hr" />

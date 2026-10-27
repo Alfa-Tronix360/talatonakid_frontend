@@ -1,9 +1,8 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router'
+import { Link, Navigate, useSearchParams } from 'react-router'
 import { useAuth } from '@/auth/AuthContext'
 import { API_BASE, api, errMsg } from '@/lib/api'
 import { Btn } from '@/components/ui'
-import { IlustracaoAdmin, IlustracaoDocente, IlustracaoEncarregado } from '@/components/Ilustracoes'
 import { Logo } from '@/components/Layout'
 
 function ApiStatus() {
@@ -26,14 +25,8 @@ function ApiStatus() {
 
 const ESCOLA = (import.meta.env.VITE_ESCOLA_NOME as string | undefined) || 'Talatona Kids'
 
-const ACESSOS = [
-  { id: 'admin', titulo: 'Administração', sub: 'Direcção, secretaria e financeiro', Ilustracao: IlustracaoAdmin },
-  { id: 'docente', titulo: 'Docente', sub: 'Notas, pautas, faltas e ocorrências', Ilustracao: IlustracaoDocente },
-  { id: 'encarregado', titulo: 'Encarregado', sub: 'Portal do encarregado de educação', Ilustracao: IlustracaoEncarregado },
-] as const
-
-/** Fundo azul-escuro com a marca no topo (ecrã inicial, login e recuperação de senha). */
-function AuthShell({ children, largo }: { children: ReactNode; largo?: boolean }) {
+/** Fundo azul-escuro com a marca no topo (início de sessão, escolha do módulo e recuperação de senha). */
+export function AuthShell({ children, largo }: { children: ReactNode; largo?: boolean }) {
   return (
     <div className="entrada">
       <header className="entrada-marca"><Logo /><span>{ESCOLA.toUpperCase()}</span></header>
@@ -43,33 +36,8 @@ function AuthShell({ children, largo }: { children: ReactNode; largo?: boolean }
   )
 }
 
-/** Ecrã inicial: escolha do tipo de acesso, como no Exitus. */
-function EscolhaAcesso() {
-  const nav = useNavigate()
-  return (
-    <AuthShell largo>
-      <h1 className="entrada-titulo">Bem-vindo à {ESCOLA}, escolha o seu tipo de acesso:</h1>
-      <div className="acessos">
-        {ACESSOS.map(({ id, titulo, sub, Ilustracao }) => (
-          <section key={id} className="acesso">
-            <h2>{titulo}</h2>
-            <div className="acesso-img"><Ilustracao /></div>
-            <p>{sub}</p>
-            <button type="button" className="btn-acessar" onClick={() => nav(`/login?acesso=${id}`)}>
-              <span aria-hidden="true">➜</span> Acessar
-            </button>
-          </section>
-        ))}
-      </div>
-    </AuthShell>
-  )
-}
-
 export function Login() {
-  const { user, login, isPortal } = useAuth()
-  const nav = useNavigate()
-  const [sp] = useSearchParams()
-  const acesso = ACESSOS.find((a) => a.id === sp.get('acesso'))
+  const { user, login, isPortal, perfis } = useAuth()
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [codigo, setCodigo] = useState('')
@@ -82,8 +50,8 @@ export function Login() {
   })
   const [busy, setBusy] = useState(false)
 
-  if (user) return <Navigate to={isPortal ? '/portal' : '/inicio'} replace />
-  if (!acesso) return <EscolhaAcesso />
+  // o administrador escolhe primeiro o módulo; os restantes entram directamente
+  if (user) return <Navigate to={isPortal ? '/portal' : perfis.includes('admin') ? '/modulos' : '/inicio'} replace />
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -91,7 +59,7 @@ export function Login() {
     setErro('')
     const r = await login(email, senha, needCode ? codigo : undefined)
     setBusy(false)
-    if (r.ok) { nav('/', { replace: true }); return }
+    if (r.ok) return // com a sessão aberta, o redireccionamento acima trata do resto
     if (r.needCode) setNeedCode(true)
     setErro(r.message)
   }
@@ -99,9 +67,8 @@ export function Login() {
   return (
     <AuthShell>
       <form className="auth-form" onSubmit={submit}>
-        <div className="auth-ilustracao"><acesso.Ilustracao /></div>
-        <h2>Acesso {acesso.titulo.toLowerCase()}</h2>
-        <p className="sub" style={{ margin: 0 }}>{acesso.sub}</p>
+        <h2>Iniciar sessão</h2>
+        <p className="sub" style={{ margin: 0 }}>Direcção, secretaria, docentes e encarregados de educação.</p>
         {erro && <div className="err" role="alert">{erro}</div>}
         <label className="fld"><span>E-mail</span>
           <input type="email" autoComplete="username" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -116,7 +83,7 @@ export function Login() {
           </label>
         )}
         <Btn type="submit" busy={busy}>Entrar</Btn>
-        <div className="links"><Link to="/login">← Escolher outro acesso</Link><Link to="/recuperar">Esqueci a palavra-passe</Link></div>
+        <div className="links"><Link to="/recuperar">Esqueci a palavra-passe</Link></div>
         <ApiStatus />
       </form>
     </AuthShell>

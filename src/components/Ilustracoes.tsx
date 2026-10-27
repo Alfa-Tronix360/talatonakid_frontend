@@ -54,3 +54,30 @@ export const IlustracaoEncarregado = () => (
     <path d="M40 156h160" stroke={N} strokeWidth="3" opacity=".25" />
   </svg>
 )
+
+export const IlustracaoAluno = () => (
+  <svg viewBox="0 0 240 170" role="img" aria-label="Aluno com a mochila e os livros">
+    <circle cx="120" cy="92" r="60" fill={C} opacity=".55" />
+    <rect x="150" y="96" width="46" height="8" rx="2" fill={T} /><rect x="154" y="88" width="40" height="8" rx="2" fill={N} />
+    <rect x="148" y="104" width="50" height="8" rx="2" fill="#f06a6a" />
+    <circle cx="112" cy="46" r="13" fill={P} /><path d="M99 44c0-14 26-14 26 0-6-5-19-5-26 0z" fill={N} />
+    <rect x="86" y="62" width="18" height="34" rx="6" fill="#f0b03f" />
+    <path d="M96 128c0-34 6-62 16-62s16 28 16 62z" fill={T} />
+    <path d="M104 128v26M120 128v26" stroke={N} strokeWidth="6" />
+    <path d="M126 82l18 14" stroke={P} strokeWidth="5" strokeLinecap="round" />
+    <path d="M40 156h160" stroke={N} strokeWidth="3" opacity=".25" />
+  </svg>
+)
+
+export const IlustracaoFinanceiro = () => (
+  <svg viewBox="0 0 240 170" role="img" aria-label="Recibo e moedas">
+    <circle cx="70" cy="86" r="50" fill={C} opacity=".55" />
+    <path d="M78 22h84v118l-10-7-11 7-10-7-11 7-10-7-11 7-10-7-11 7z" fill="#fff" stroke={N} strokeWidth="3" strokeLinejoin="round" />
+    <rect x="92" y="40" width="40" height="6" rx="2" fill={T} />
+    <rect x="92" y="56" width="56" height="4" rx="2" fill={C} /><rect x="92" y="68" width="48" height="4" rx="2" fill={C} />
+    <rect x="92" y="80" width="56" height="4" rx="2" fill={C} />
+    <path d="M92 104h56" stroke={N} strokeWidth="2" /><rect x="120" y="110" width="28" height="6" rx="2" fill={N} />
+    {[0, 1, 2].map((i) => <ellipse key={i} cx="186" cy={146 - i * 10} rx="22" ry="7" fill={i === 2 ? T : '#f0b03f'} stroke={N} strokeWidth="2" />)}
+    <ellipse cx="54" cy="148" rx="18" ry="6" fill="#f0b03f" stroke={N} strokeWidth="2" />
+  </svg>
+)

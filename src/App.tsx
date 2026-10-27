@@ -90,6 +90,7 @@ const router = createBrowserRouter([
   { path: '/login', Component: Login },
   { path: '/recuperar', Component: Recuperar },
   { path: '/redefinir', Component: Redefinir },
+  { path: '/modulos', ...page(() => import('@/pages/Modulos')) }, // ecrã inteiro, sem o menu lateral
   {
     path: '/',
     Component: Shell,
