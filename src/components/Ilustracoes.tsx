@@ -81,3 +81,17 @@ export const IlustracaoFinanceiro = () => (
     <ellipse cx="54" cy="148" rx="18" ry="6" fill="#f0b03f" stroke={N} strokeWidth="2" />
   </svg>
 )
+
+export const IlustracaoDireccao = () => (
+  <svg viewBox="0 0 240 170" role="img" aria-label="Painel com gráficos da escola">
+    <circle cx="176" cy="84" r="48" fill={C} opacity=".55" />
+    <rect x="30" y="22" width="140" height="100" rx="6" fill="#fff" stroke={N} strokeWidth="3" />
+    <rect x="44" y="36" width="44" height="6" rx="2" fill={T} />
+    {[[48, 30], [66, 46], [84, 22], [102, 38]].map(([x, h]) => <rect key={x} x={x} y={108 - h} width="12" height={h} rx="2" fill={N} />)}
+    <circle cx="142" cy="78" r="20" fill="none" stroke={C} strokeWidth="9" />
+    <path d="M142 58a20 20 0 0 1 19 26" fill="none" stroke={T} strokeWidth="9" />
+    <path d="M86 122v18M114 122v18M70 140h60" stroke={N} strokeWidth="4" strokeLinecap="round" />
+    <circle cx="198" cy="64" r="11" fill={P} /><path d="M188 60c2-10 18-10 20 0-6-4-14-4-20 0z" fill={N} />
+    <path d="M184 136c0-30 6-54 14-54s14 24 14 54z" fill="#4a4f8f" />
+  </svg>
+)
