@@ -92,7 +92,6 @@ const router = createBrowserRouter([
   { path: '/recuperar', Component: Recuperar },
   { path: '/redefinir', Component: Redefinir },
   { path: '/candidatura/:token', ...page(() => import('@/pages/Formalizacao')) }, // a família, sem conta
-  { path: '/modulos', ...page(() => import('@/pages/Modulos')) }, // ecrã inteiro, sem o menu lateral
   {
     path: '/',
     Component: Shell,

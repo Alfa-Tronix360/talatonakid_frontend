@@ -37,7 +37,7 @@ export function AuthShell({ children, largo }: { children: ReactNode; largo?: bo
 }
 
 export function Login() {
-  const { user, login, isPortal, perfis } = useAuth()
+  const { user, login, isPortal } = useAuth()
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [codigo, setCodigo] = useState('')
@@ -50,8 +50,7 @@ export function Login() {
   })
   const [busy, setBusy] = useState(false)
 
-  // o administrador escolhe primeiro o módulo; os restantes entram directamente
-  if (user) return <Navigate to={isPortal ? '/portal' : perfis.includes('admin') ? '/modulos' : '/inicio'} replace />
+  if (user) return <Navigate to={isPortal ? '/portal' : '/inicio'} replace />
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()

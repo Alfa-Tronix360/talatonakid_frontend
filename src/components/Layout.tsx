@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
+import { NavLink, Outlet, useLocation } from 'react-router'
 import { useAuth } from '@/auth/AuthContext'
 import { nameOf, pick, type Row } from '@/lib/data'
 import { AuthImage } from './AuthImage'
@@ -7,7 +7,6 @@ import { AuthImage } from './AuthImage'
 /* ---------------------------------------------------------------- ícones do menu (traço simples) */
 const PATHS: Record<string, string> = {
   home: 'M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
-  modulos: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
   gestao: 'M4 6h16M4 12h16M4 18h16',
   painel: 'M4 20V10M10 20V4M16 20v-7M22 20H2',
   aluno: 'M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6',
@@ -55,22 +54,6 @@ export const NAV: Grupo[] = [
   ] },
 ]
 
-/** Quadro "Direcção" do ecrã de módulos (o administrador escolhe sempre um módulo; estes ecrãs não estão em NAV). */
-export const DIRECCAO: Grupo = { group: 'Direcção', icon: 'painel', items: [
-  ['/inicio', 'Visão geral'], ['/gestao', 'Gestão geral'], ['/painel', 'Painel da direcção', 'painel'],
-  ['/turmas', 'Turmas', 'cadastro'], ['/academico', 'Estrutura académica', 'academico'],
-] }
-export const MODULOS = [DIRECCAO, ...NAV]
-
-// Módulo escolhido pelo administrador no ecrã de módulos (vale até fechar o separador).
-const CHAVE_MODULO = 'clacs.modulo'
-export function escolherModulo(nome: string | null) {
-  try { nome ? sessionStorage.setItem(CHAVE_MODULO, nome) : sessionStorage.removeItem(CHAVE_MODULO) } catch { /* sem storage */ }
-}
-function moduloGuardado() {
-  try { return sessionStorage.getItem(CHAVE_MODULO) } catch { return null }
-}
-
 /** O utilizador vê o módulo? (admin vê tudo; os restantes pelas permissões "modulo:ver" do /auth/me). */
 export function usePode() {
   const { user } = useAuth()
@@ -106,8 +89,8 @@ export const Logo = () => (
 
 export const nomeEscola = (user: Row | null) => String(pick(user, 'estabelecimento.nome') ?? 'Talatona Kids')
 
-function grupoDe(pathname: string, grupos: Grupo[] = NAV) {
-  return grupos.find((g) => g.items.some(([to]) => pathname === to || pathname.startsWith(`${to}/`)))?.group
+function grupoDe(pathname: string) {
+  return NAV.find((g) => g.items.some(([to]) => pathname === to || pathname.startsWith(`${to}/`)))?.group
 }
 
 function Chev({ open }: { open: boolean }) {
@@ -129,10 +112,9 @@ export function Avatar({ user, size = 36 }: { user: Row | null; size?: number })
   )
 }
 
-function Topo({ onMenu, admin }: { onMenu: () => void; admin?: boolean }) {
+function Topo({ onMenu }: { onMenu: () => void }) {
   const { user, logout } = useAuth()
   const toggleTheme = useTheme()
-  const nav = useNavigate()
   return (
     <header className="topo">
       <button type="button" className="topo-btn" onClick={onMenu} aria-label="Mostrar ou esconder o menu">
@@ -146,16 +128,9 @@ function Topo({ onMenu, admin }: { onMenu: () => void; admin?: boolean }) {
         <Avatar user={user} />
         <b>{nameOf(user) || 'Utilizador'}</b>
       </NavLink>
-      {admin ? (
-        // o administrador termina a sessão no ecrã de módulos
-        <button type="button" className="topo-btn" onClick={() => nav('/modulos')} aria-label="Voltar aos módulos" title="Voltar aos módulos">
-          <Icone n="modulos" />
-        </button>
-      ) : (
-        <button type="button" className="topo-btn" onClick={logout} aria-label="Terminar sessão" title="Terminar sessão">
-          <Icone n="sair" />
-        </button>
-      )}
+      <button type="button" className="topo-btn" onClick={logout} aria-label="Terminar sessão" title="Terminar sessão">
+        <Icone n="sair" />
+      </button>
     </header>
   )
 }
@@ -176,40 +151,23 @@ function Lado({ open, children }: { open: boolean; children: ReactNode }) {
 export function Layout() {
   const loc = useLocation()
   const pode = usePode()
-  const { perfis } = useAuth()
-  const admin = perfis.includes('admin')
   const [aberto, setAberto] = useState(false)          // menu no telemóvel
   const [escondido, setEscondido] = useState(false)    // menu recolhido no computador
   const [grupoAberto, setGrupoAberto] = useState<string | undefined>(() => grupoDe(loc.pathname))
   useEffect(() => { setAberto(false) }, [loc.pathname])
   useEffect(() => { const g = grupoDe(loc.pathname); if (g) setGrupoAberto(g) }, [loc.pathname])
-  // Administrador: o menu mostra só o módulo escolhido; abrir um ecrã de outro módulo muda de módulo.
-  const [modulo, setModulo] = useState(moduloGuardado)
-  useEffect(() => {
-    const g = admin ? grupoDe(loc.pathname, MODULOS) : undefined
-    if (g) { setModulo(g); escolherModulo(g) }
-  }, [loc.pathname, admin])
-  const grupoModulo = admin ? MODULOS.find((g) => g.group === modulo) : undefined
   const menu = () => (matchMedia('(max-width: 900px)').matches ? setAberto(true) : setEscondido((v) => !v))
   const nl = ({ isActive }: { isActive: boolean }) => `nl ${isActive ? 'active' : ''}`
 
   return (
     <div className={`app ${escondido ? 'side-off' : ''}`}>
       {aberto && <div className="scrim" onClick={() => setAberto(false)} />}
-      {grupoModulo ? (
-        <Lado open={aberto}>
-          <NavLink to="/modulos" className={nl}><Icone n="modulos" /> Módulos</NavLink>
-          <hr className="side-hr" />
-          <div className="side-titulo side-modulo"><Icone n={grupoModulo.icon} /> {grupoModulo.group}</div>
-          <nav aria-label={grupoModulo.group} className="nav-sub nav-modulo">
-            {grupoModulo.items.filter(([, , m]) => pode(m)).map(([to, l]) => <NavLink key={to} to={to} className={nl}>{l}</NavLink>)}
-          </nav>
-        </Lado>
-      ) : (
       <Lado open={aberto}>
         <NavLink to="/inicio" className={nl}><Icone n="home" /> Home</NavLink>
         <NavLink to="/gestao" className={nl}><Icone n="gestao" /> Gestão geral</NavLink>
         {pode('painel') && <NavLink to="/painel" className={nl}><Icone n="painel" /> Painel da direcção</NavLink>}
+        {pode('cadastro') && <NavLink to="/turmas" className={nl}><Icone n="aluno" /> Turmas</NavLink>}
+        {pode('academico') && <NavLink to="/academico" className={nl}><Icone n="docente" /> Estrutura académica</NavLink>}
         <hr className="side-hr" />
         <div className="side-titulo">Navegação</div>
         {NAV.map((g) => {
@@ -233,9 +191,8 @@ export function Layout() {
         })}
         <NavLink to="/conta" className={nl}><Icone n="config" /> Configurações</NavLink>
       </Lado>
-      )}
       <div className="corpo">
-        <Topo onMenu={menu} admin={admin} />
+        <Topo onMenu={menu} />
         <main className="main" id="conteudo"><Outlet /></main>
       </div>
     </div>
