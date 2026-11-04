@@ -91,6 +91,7 @@ const router = createBrowserRouter([
   { path: '/login', Component: Login },
   { path: '/recuperar', Component: Recuperar },
   { path: '/redefinir', Component: Redefinir },
+  { path: '/candidatura', ...page(() => import('@/pages/PreInscricao')) }, // pré-inscrição pública, sem conta
   { path: '/candidatura/:token', ...page(() => import('@/pages/Formalizacao')) }, // a família, sem conta
   {
     path: '/',

@@ -26,7 +26,7 @@ export const ETAPAS: { estado: string; nome: string; quem: string }[] = [
 ]
 const FINAIS = ['concluida', 'rejeitada', 'cancelada']
 const TOM: Record<string, string> = { concluida: 'pago', matriculada: 'pago', rejeitada: 'divida', cancelada: 'anulada' }
-const ORIGEM: Record<string, string> = { google_forms: 'Google Forms', secretaria: 'Secretaria', importacao: 'CSV do formulário' }
+const ORIGEM: Record<string, string> = { google_forms: 'Google Forms', site: 'Site', secretaria: 'Secretaria', importacao: 'CSV do formulário' }
 const SEXOS = [{ value: 'F', label: 'Feminino' }, { value: 'M', label: 'Masculino' }]
 
 const camposCandidatura: FieldDef[] = [

@@ -82,7 +82,7 @@ export function Login() {
           </label>
         )}
         <Btn type="submit" busy={busy}>Entrar</Btn>
-        <div className="links"><Link to="/recuperar">Esqueci a palavra-passe</Link></div>
+        <div className="links"><Link to="/recuperar">Esqueci a palavra-passe</Link><Link to="/candidatura">Pré-inscrição de um aluno novo</Link></div>
         <ApiStatus />
       </form>
     </AuthShell>
