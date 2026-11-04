@@ -138,8 +138,10 @@ function Detalhe({ id, onClose }: { id: number; onClose: () => void }) {
   const toast = useToast()
   const [accao, setAccao] = useState<Accao | null>(null)
   const [cancelar, setCancelar] = useState(false)
+  const [editar, setEditar] = useState(false)
   const inv = ['/candidaturas', '/alertas', '/alunos', '/matriculas', '/turmas']
   const act = useAct((v: { chave: string; corpo: Row }) => api.post(`/candidaturas/${id}/${v.chave}`, v.corpo), { invalidate: inv, silent: true })
+  const guardar = useAct((p: Row) => api.patch(`/candidaturas/${id}`, p), { invalidate: inv, silent: true })
   const c = q.data
   const pode = (papel: string) => perfis.some((p) => ['admin', 'direccao', papel].includes(p))
   const abrir = async (u: string) => {
@@ -162,6 +164,9 @@ function Detalhe({ id, onClose }: { id: number; onClose: () => void }) {
               <Btn key={a.label} variant={a.variante === 'danger' ? 'danger' : a.variante} onClick={() => setAccao(a)}>{a.label}</Btn>
             ))}
             {!FINAIS.includes(c.estado) && c.estado !== 'matriculada' && <Btn variant="link" onClick={() => setCancelar(true)}>Cancelar candidatura</Btn>}
+            {['submetida', 'reuniao_marcada', 'reuniao_realizada'].includes(c.estado)
+              && perfis.some((p) => ['admin', 'direccao', 'coordenacao', 'secretaria'].includes(p))
+              && <Btn variant="link" onClick={() => setEditar(true)}>Editar pré-inscrição</Btn>}
           </div>
           {accoes(c).length > 0 && !accoes(c).some((a) => pode(a.papel)) && (
             <div className="intro">Esta etapa é da {accoes(c)[0].papel === 'coordenacao' ? 'coordenação' : accoes(c)[0].papel === 'direccao' ? 'Direcção' : 'secretaria'}.</div>
@@ -231,6 +236,13 @@ function Detalhe({ id, onClose }: { id: number; onClose: () => void }) {
           intro="Use quando a família desiste ou a candidatura está repetida. A família não é avisada."
           fields={[{ name: 'parecer', label: 'Motivo', type: 'textarea' }]} onClose={() => setCancelar(false)}
           onSubmit={async (p) => { await act.mutateAsync({ chave: 'cancelar', corpo: p }); toast.ok('Candidatura cancelada.') }} />
+      )}
+      {editar && c && (
+        <FormDialog title={`Editar pré-inscrição — ${c.nome_aluno}`} fields={camposCandidatura} initial={c}
+          submitLabel="Guardar alterações"
+          intro="Corrija os dados da pré-inscrição, por exemplo a classe pretendida. Se mudar de classe, a coordenação do novo nível é avisada."
+          onClose={() => setEditar(false)}
+          onSubmit={async (p) => { await guardar.mutateAsync(p); toast.ok('Pré-inscrição actualizada.') }} />
       )}
     </Modal>
   )
