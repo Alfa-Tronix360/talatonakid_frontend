@@ -12,6 +12,8 @@ const PATHS: Record<string, string> = {
   aluno: 'M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6',
   financeiro: 'M3 7h18v12H3zM3 11h18M7 15h3',
   docente: 'M3 5h18v11H3zM8 21l4-5 4 5M7 9h6',
+  academico: 'M2 9l10-5 10 5-10 5zM6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5M22 9v6',
+  secretaria: 'M3 7h6l2 2h10v10H3zM3 7V5h6l2 2',
   comunicacao: 'M4 5h16v11H8l-4 4z',
   admin: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z',
   config: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12l2-1-2-4-2 1-2-1V5h-4v2l-2 1-2-1-2 4 2 1v2l-2 1 2 4 2-1 2 1v2h4v-2l2-1 2 1 2-4-2-1z',
@@ -28,29 +30,41 @@ export const Icone = ({ n, size = 18 }: { n: string; size?: number }) => (
 type Item = [string, string, string?]
 type Grupo = { group: string; icon: string; items: Item[] }
 
+// Organizado pelos serviços da escola. Um mesmo ecrã com separadores (ex.: /academico) pode aparecer em
+// vários grupos, cada um a abrir o separador desse serviço (?tab=…).
 export const NAV: Grupo[] = [
-  { group: 'Aluno', icon: 'aluno', items: [
-    ['/candidaturas', 'Candidaturas', 'candidaturas'], ['/alunos', 'Alunos', 'cadastro'], ['/encarregados', 'Encarregados', 'cadastro'], ['/matriculas', 'Matrículas', 'cadastro'],
-    ['/pedidos', 'Pedidos dos encarregados', 'cadastro'], ['/transporte', 'Transporte', 'transporte'],
+  { group: 'Direcção', icon: 'painel', items: [
+    ['/gestao', 'Gestão geral'], ['/painel', 'Painel da direcção', 'painel'], ['/alertas', 'Alertas', 'painel'],
+    ['/relatorios', 'Relatórios', 'painel'], ['/assistente', 'Assistente', 'painel'],
+  ] },
+  { group: 'Pedagógico', icon: 'docente', items: [
+    ['/academico?tab=anos', 'Calendário escolar', 'academico'], ['/turmas', 'Turmas', 'cadastro'],
+    ['/academico?tab=classes', 'Classes e disciplinas', 'academico'], ['/avaliacoes', 'Avaliações e notas', 'pedagogico'],
+    ['/pautas', 'Pautas', 'pedagogico'], ['/assiduidade', 'Assiduidade', 'pedagogico'],
+    ['/registo-diario', 'Registo diário', 'pedagogico'],
+  ] },
+  { group: 'Académico', icon: 'academico', items: [
+    ['/academico?tab=funcionarios', 'Professores', 'academico'], ['/avaliacao-professores', 'Desempenho dos professores', 'painel'],
+    ['/pedagogico/alunos', 'Acompanhamento dos alunos', 'pedagogico'],
+  ] },
+  { group: 'Secretaria', icon: 'secretaria', items: [
+    ['/candidaturas', 'Candidaturas', 'candidaturas'], ['/matriculas', 'Matrículas e renovações', 'cadastro'],
+    ['/alunos', 'Processos dos alunos', 'cadastro'], ['/encarregados', 'Encarregados', 'cadastro'],
+    ['/pedidos', 'Pedidos e declarações', 'cadastro'], ['/ocorrencias', 'Ocorrências', 'pedagogico'],
+    ['/transporte', 'Transporte', 'transporte'],
   ] },
   { group: 'Financeiro', icon: 'financeiro', items: [
     ['/cobrancas', 'Propinas e cobranças', 'propinas'], ['/pagamentos', 'Pagamentos', 'propinas'],
     ['/refeitorio', 'Refeitório e serviços', 'refeitorio'], ['/catalogo', 'Serviços e preços', 'propinas'],
-  ] },
-  { group: 'Docente', icon: 'docente', items: [
-    ['/pedagogico/alunos', 'Alunos das turmas', 'pedagogico'], ['/avaliacoes', 'Avaliações e notas', 'pedagogico'],
-    ['/pautas', 'Pautas', 'pedagogico'], ['/assiduidade', 'Assiduidade', 'pedagogico'], ['/ocorrencias', 'Ocorrências', 'pedagogico'],
-    ['/registo-diario', 'Registo diário', 'pedagogico'], ['/avaliacao-professores', 'Avaliação dos professores', 'painel'],
+    ['/primavera', 'Integração Primavera', 'primavera'],
   ] },
   { group: 'Comunicação', icon: 'comunicacao', items: [
     ['/mensagens', 'Mensagens e comunicados', 'comunicacao'], ['/regras', 'Regras e modelos', 'comunicacao'],
-    ['/alertas', 'Alertas', 'painel'], ['/assistente', 'Assistente', 'painel'],
   ] },
   { group: 'Administrador', icon: 'admin', items: [
     ['/utilizadores', 'Utilizadores', 'utilizadores'], ['/perfis', 'Perfis e permissões', 'utilizadores'],
-    ['/auditoria', 'Auditoria', 'utilizadores'], ['/definicoes', 'Definições da escola', 'academico'],
-    ['/relatorios', 'Relatórios', 'painel'], ['/importacao', 'Importação de dados', 'importacao'],
-    ['/primavera', 'Integração Primavera', 'primavera'],
+    ['/definicoes', 'Definições da escola', 'academico'], ['/academico?tab=salas', 'Salas', 'academico'],
+    ['/auditoria', 'Auditoria', 'utilizadores'], ['/importacao', 'Importação de dados', 'importacao'],
   ] },
 ]
 
@@ -89,8 +103,19 @@ export const Logo = () => (
 
 export const nomeEscola = (user: Row | null) => String(pick(user, 'estabelecimento.nome') ?? 'Talatona Kids')
 
-function grupoDe(pathname: string) {
-  return NAV.find((g) => g.items.some(([to]) => pathname === to || pathname.startsWith(`${to}/`)))?.group
+/** A entrada do menu corresponde ao endereço actual? Com "?tab=…", conta também o separador. */
+function activo(to: string, pathname: string, search: string) {
+  const [path, query] = to.split('?')
+  if (!query) return pathname === path || pathname.startsWith(`${path}/`)
+  if (pathname !== path) return false
+  const actual = new URLSearchParams(search)
+  // Sem separador no endereço, o ecrã abre o 1.º: corresponde à 1.ª entrada do menu com esse caminho.
+  if (!actual.size) return NAV.flatMap((g) => g.items).find(([t]) => t.startsWith(`${path}?`))?.[0] === to
+  return [...new URLSearchParams(query)].every(([k, v]) => actual.get(k) === v)
+}
+
+function grupoDe(pathname: string, search: string) {
+  return NAV.find((g) => g.items.some(([to]) => activo(to, pathname, search)))?.group
 }
 
 function Chev({ open }: { open: boolean }) {
@@ -153,9 +178,9 @@ export function Layout() {
   const pode = usePode()
   const [aberto, setAberto] = useState(false)          // menu no telemóvel
   const [escondido, setEscondido] = useState(false)    // menu recolhido no computador
-  const [grupoAberto, setGrupoAberto] = useState<string | undefined>(() => grupoDe(loc.pathname))
+  const [grupoAberto, setGrupoAberto] = useState<string | undefined>(() => grupoDe(loc.pathname, loc.search))
   useEffect(() => { setAberto(false) }, [loc.pathname])
-  useEffect(() => { const g = grupoDe(loc.pathname); if (g) setGrupoAberto(g) }, [loc.pathname])
+  useEffect(() => { const g = grupoDe(loc.pathname, loc.search); if (g) setGrupoAberto(g) }, [loc.pathname, loc.search])
   const menu = () => (matchMedia('(max-width: 900px)').matches ? setAberto(true) : setEscondido((v) => !v))
   const nl = ({ isActive }: { isActive: boolean }) => `nl ${isActive ? 'active' : ''}`
 
@@ -164,12 +189,8 @@ export function Layout() {
       {aberto && <div className="scrim" onClick={() => setAberto(false)} />}
       <Lado open={aberto}>
         <NavLink to="/inicio" className={nl}><Icone n="home" /> Home</NavLink>
-        <NavLink to="/gestao" className={nl}><Icone n="gestao" /> Gestão geral</NavLink>
-        {pode('painel') && <NavLink to="/painel" className={nl}><Icone n="painel" /> Painel da direcção</NavLink>}
-        {pode('cadastro') && <NavLink to="/turmas" className={nl}><Icone n="aluno" /> Turmas</NavLink>}
-        {pode('academico') && <NavLink to="/academico" className={nl}><Icone n="docente" /> Estrutura académica</NavLink>}
         <hr className="side-hr" />
-        <div className="side-titulo">Navegação</div>
+        <div className="side-titulo">Serviços</div>
         {NAV.map((g) => {
           const itens = g.items.filter(([, , m]) => pode(m))
           if (!itens.length) return null
@@ -183,7 +204,10 @@ export function Layout() {
               </button>
               {expandido && (
                 <nav aria-label={g.group} className="nav-sub">
-                  {itens.map(([to, l]) => <NavLink key={to} to={to} className={nl}>{l}</NavLink>)}
+                  {itens.map(([to, l]) => (
+                    // className em função: o NavLink não junta o "active" dele, que só olha para o caminho
+                    <NavLink key={to} to={to} className={() => `nl ${activo(to, loc.pathname, loc.search) ? 'active' : ''}`}>{l}</NavLink>
+                  ))}
                 </nav>
               )}
             </div>
