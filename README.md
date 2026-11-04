@@ -25,6 +25,7 @@ A API é configurada em `.env` (`VITE_API_BASE_URL`, por omissão `/api`):
 | Área | Rotas |
 | --- | --- |
 | Direcção | `/painel`, `/alertas`, `/assistente` |
+| Admissões | `/candidaturas` (pré-inscrições do Google Forms até às boas-vindas); `/candidatura/:token` é a página pública da família |
 | Secretaria | `/alunos`, `/alunos/:id` (visão 360°), `/encarregados`, `/matriculas`, `/turmas`, `/academico` |
 | Financeiro | `/cobrancas`, `/pagamentos`, `/refeitorio`, `/catalogo` (serviços, preços, planos, multas, descontos, métodos) |
 | Pedagógico | `/avaliacoes`, `/pautas`, `/assiduidade`, `/ocorrencias`, `/registo-diario` |

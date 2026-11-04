@@ -31,7 +31,7 @@ type Grupo = { group: string; icon: string; items: Item[] }
 
 export const NAV: Grupo[] = [
   { group: 'Aluno', icon: 'aluno', items: [
-    ['/alunos', 'Alunos', 'cadastro'], ['/encarregados', 'Encarregados', 'cadastro'], ['/matriculas', 'Matrículas', 'cadastro'],
+    ['/candidaturas', 'Candidaturas', 'candidaturas'], ['/alunos', 'Alunos', 'cadastro'], ['/encarregados', 'Encarregados', 'cadastro'], ['/matriculas', 'Matrículas', 'cadastro'],
     ['/pedidos', 'Pedidos dos encarregados', 'cadastro'], ['/transporte', 'Transporte', 'transporte'],
   ] },
   { group: 'Financeiro', icon: 'financeiro', items: [

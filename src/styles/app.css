@@ -532,3 +532,29 @@ table.matriz tbody tr:hover { background: var(--sf2); }
 /* Menu do administrador: só o módulo escolhido */
 .side-modulo { display: flex; align-items: center; gap: 8px; }
 .nav-modulo { padding-left: 0; }
+
+/* ---------------------------------------------------------------- candidaturas */
+.cand { display: grid; gap: 14px; }
+.cand-estado { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.cand-estado .grow { flex: 1; }
+.etapas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 6px; }
+.etapas li { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; font-size: 12px; color: var(--mu); position: relative; }
+.etapas li b { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--ln); background: var(--sf); font-size: 12px; }
+.etapas li small { display: block; font-size: 11px; opacity: .8; }
+.etapas li.feita b { background: var(--ok); border-color: var(--ok); color: #fff; }
+.etapas li.actual { color: var(--tx); font-weight: 700; }
+.etapas li.actual b { border-color: var(--ac); color: var(--ac); }
+@media (max-width: 900px) { .etapas { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 10px; } }
+.docs { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+.docs li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--ln); border-radius: 6px; }
+.docs li > span { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.docs .doc-ok { color: var(--ok); font-size: 13px; }
+.docs .doc-ok .btn { margin-left: 8px; font-size: 13px; }
+.hist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
+.passos { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 14px; }
+.codigo { background: var(--sf2); border: 1px solid var(--ln); border-radius: 6px; padding: 12px; font-size: 12px; max-height: 320px; overflow: auto; white-space: pre; margin: 0; }
+.er { color: var(--er); }
+.formalizacao { max-width: 860px; display: grid; gap: 14px; }
+.formalizacao h3 { font-size: 16px; margin-top: 8px; }
+.formalizacao .err { background: var(--er2); color: var(--er); padding: 9px 12px; border-radius: 6px; font-size: 14px; }
+.formalizacao .okm { background: var(--ok2); color: var(--ok); padding: 9px 12px; border-radius: 6px; font-size: 14px; }

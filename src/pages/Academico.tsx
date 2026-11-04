@@ -6,7 +6,7 @@ import { Resource } from '@/components/Resource'
 import { Table } from '@/components/Table'
 import { Btn, Estado, Loading, PageHead, Select, Tabs } from '@/components/ui'
 import { api } from '@/lib/api'
-import { pick, type Row } from '@/lib/data'
+import { perfisOf, pick, type Row } from '@/lib/data'
 import { TIPOS_SALA, disciplinaOptions, isActivo, useAnoActivo } from '@/lib/academic'
 import { dataPT, label } from '@/lib/format'
 import { useAct, useList } from '@/lib/hooks'
@@ -174,7 +174,19 @@ const salaFields: FieldDef[] = [
   { name: 'capacidade', label: 'Capacidade (lugares)', type: 'number', min: 1 },
   { name: 'observacoes', label: 'Observações', type: 'textarea' },
 ]
-const nivelFields: FieldDef[] = [{ name: 'nome', label: 'Nome', required: true, placeholder: 'Ensino Primário' }, { name: 'ordem', label: 'Ordem', type: 'number', default: 0 }]
+/** Nome do coordenador do nível (a lista de utilizadores fica em cache). */
+function Coordenador({ id }: { id?: number | null }) {
+  const q = useList(id ? '/utilizadores' : null)
+  if (!id) return <span className="mu">Toda a coordenação</span>
+  return <>{q.rows.find((u) => u.id === id)?.nome ?? '—'}</>
+}
+
+const nivelFields: FieldDef[] = [
+  { name: 'nome', label: 'Nome', required: true, placeholder: 'Ensino Primário' }, { name: 'ordem', label: 'Ordem', type: 'number', default: 0 },
+  { name: 'coordenador_id', label: 'Coordenador do nível', type: 'select', wide: true, empty: 'Toda a coordenação',
+    hint: 'Recebe as candidaturas das classes deste nível.',
+    options: { path: '/utilizadores', label: ['nome'], filter: (u: Row) => !perfisOf(u).includes('encarregado') } },
+]
 const classeFields: FieldDef[] = [
   { name: 'nivel_id', label: 'Nível', type: 'select', options: { path: '/niveis', label: ['nome'] }, required: true },
   { name: 'designacao', label: 'Designação', required: true, placeholder: '7.ª classe' },
@@ -196,7 +208,7 @@ export default function Academico() {
       {tab === 'niveis' && (
         <Resource path="/niveis" createLabel="Novo nível" createFields={nivelFields} editFields={nivelFields}
           editPath={(r) => `/niveis/${r.id}`} deletePath={(r) => `/niveis/${r.id}`}
-          cols={[{ h: 'Ordem', k: 'ordem' }, { h: 'Nível', k: ['nome', 'designacao'] }]} />
+          cols={[{ h: 'Ordem', k: 'ordem' }, { h: 'Nível', k: ['nome', 'designacao'] }, { h: 'Coordenador', render: (r) => <Coordenador id={r.coordenador_id} /> }]} />
       )}
       {tab === 'classes' && (
         <>

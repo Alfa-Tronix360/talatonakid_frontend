@@ -53,6 +53,7 @@ const staff: RouteObject[] = [
   at('encarregados', () => import('@/pages/Encarregados')),
   at('matriculas', () => import('@/pages/Matriculas')),
   at('pedidos', () => import('@/pages/Pedidos')),
+  at('candidaturas', () => import('@/pages/Candidaturas')),
   at('transporte', () => import('@/pages/Transporte')),
   at('turmas', () => import('@/pages/Turmas')),
   at('academico', () => import('@/pages/Academico')),
@@ -90,6 +91,7 @@ const router = createBrowserRouter([
   { path: '/login', Component: Login },
   { path: '/recuperar', Component: Recuperar },
   { path: '/redefinir', Component: Redefinir },
+  { path: '/candidatura/:token', ...page(() => import('@/pages/Formalizacao')) }, // a família, sem conta
   { path: '/modulos', ...page(() => import('@/pages/Modulos')) }, // ecrã inteiro, sem o menu lateral
   {
     path: '/',
